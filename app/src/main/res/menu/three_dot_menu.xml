@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activity.MainActivity">
+
+    <item
+        android:id="@+id/order_history_cust"
+        android:title="Order History"
+        android:actionLayout="@layout/net_total_layout"
+        app:showAsAction="always" />
+
+</menu>

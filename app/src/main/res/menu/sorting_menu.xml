@@ -1,0 +1,78 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activity.MainActivity">
+
+    <item
+        android:id="@+id/action_total"
+        android:title="cart"
+        android:visible="false"
+        android:actionLayout="@layout/net_total_layout"
+        app:showAsAction="always" />
+
+
+<!--    <item-->
+<!--        android:id="@+id/action_search"-->
+<!--        android:icon="@drawable/ic_search"-->
+<!--        android:visible="false"-->
+<!--        android:title="Search"-->
+<!--        android:orderInCategory="100"-->
+<!--        app:showAsAction="always" />-->
+
+    <item
+        android:icon="@drawable/ic_filter_outline"
+        android:title="Filter"
+        android:id="@+id/action_filter"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+
+<!--    <item-->
+<!--        android:id="@+id/action_barcode"-->
+<!--        android:icon="@drawable/ic_barcode_white"-->
+<!--        android:title="barcode"-->
+<!--        android:visible="false"-->
+<!--        android:orderInCategory="100"-->
+<!--        app:showAsAction="always" />-->
+
+    <item
+        android:id="@+id/action_add"
+        android:icon="@drawable/ic_user"
+        android:title="Search"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+
+
+    <group
+        android:id="@+id/drawermenu_group_2"
+        android:visible="false"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/navigation_item_settings"
+            app:showAsAction="never"
+            android:title="SortBy" />
+
+        <item
+            android:title="Date"
+            android:id="@+id/action_date"
+            android:orderInCategory="100"
+            app:showAsAction="never" />
+
+        <item
+            android:title="Amount"
+            android:id="@+id/action_amount"
+            android:orderInCategory="100"
+            app:showAsAction="never" />
+
+        <item
+            android:title="Customer Name"
+            android:id="@+id/action_customer_name"
+            android:orderInCategory="100"
+            app:showAsAction="never" />
+
+    </group>
+
+
+
+
+</menu>

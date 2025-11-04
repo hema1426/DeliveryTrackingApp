@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#8000"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:fillViewport="true"
+        android:background="@color/white"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:focusableInTouchMode="true"
+            android:paddingBottom="10dp"
+            android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/custLay_pickD"
+                    android:layout_width="match_parent"
+                    android:padding="7dp"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/custFilterAuto"
+                        android:layout_width="match_parent"
+                        android:padding="8dp"
+                        android:drawableRight="@drawable/ic_baseline_search_24"
+                        android:textSize="13sp"
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true"
+                        android:textColor="@color/black"
+                        android:hint="Enter Customer detail"
+                        android:background="@drawable/edit_text_corner"
+                        android:layout_below="@+id/code_title"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:focusableInTouchMode="true"
+                android:layout_marginTop="0dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:padding="10dp"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:text="Customer Name"
+                            android:textSize="12sp"
+                            android:textColor="#212121"
+                            android:textStyle="bold"
+                            android:layout_height="wrap_content"/>
+
+
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/so_number_filter_pick"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="5dp"
+                        android:padding="5dp"
+                        android:singleLine="true"
+                        android:drawableRight="@drawable/ic_baseline_search_24"
+                        android:gravity="top"
+                        android:textSize="13sp"
+                        android:textColor="#212121"
+                        android:hint="Delivery Number"
+                        android:background="@drawable/invoice_edit_text"
+                        android:layout_height="35dp"/>
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="400dp"
+                    android:padding="5dp"
+                    android:focusableInTouchMode="true"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <Spinner
+                        android:id="@+id/spinner_status_pick"
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:background="@drawable/invoice_edit_text"
+                        android:layout_height="35dp"
+                        android:entries="@array/sales_arrays"
+                        android:prompt="@string/invoice_prompt" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/spinner_remark_layl"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginBottom="10dp"
+                android:padding="5dp"
+                android:visibility="gone"
+                android:background="@drawable/layout_border_radious5_hash"
+                android:orientation="horizontal">
+
+                <com.example.deliverytrackingapp.ui.multiselectspinner.MultiSelectSpinnerView
+                    android:id="@+id/zoneSpinnerl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/spinner_bg"
+                    />
+
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    android:background="@drawable/round_accent_whit_rad3"
+                    android:src="@drawable/ic_keyboard_arrow_down_accent_24dp"
+                    app:tint="@color/gray" />
+
+            </RelativeLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:background="@color/white"
+                android:paddingBottom="10dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/picki_fromdatelay"
+                    android:layout_width="match_parent"
+                    android:padding="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:orientation="horizontal"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="From Date"
+                            android:textColor="#212121"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+
+                    <TextView
+                        android:id="@+id/picki_fromdate_txt"
+                        android:layout_width="match_parent"
+                        android:hint="From Date"
+                        android:padding="5dp"
+                        android:textSize="13sp"
+                        android:textColor="@color/pink_clr"
+                        android:focusable="false"
+                        android:drawableRight="@drawable/ic_calendar"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/invoice_edit_text"
+                        android:layout_below="@+id/code_title"
+                        android:layout_height="35dp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/picki_todatelay"
+                    android:layout_width="match_parent"
+                    android:padding="10dp"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:orientation="horizontal"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:text="To Date"
+                            android:textSize="12sp"
+                            android:textColor="#212121"
+                            android:textStyle="bold"
+                            android:layout_height="wrap_content"/>
+
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/picki_todate_txt"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="5dp"
+                        android:padding="5dp"
+                        android:focusable="false"
+                        android:textSize="13sp"
+                        android:textColor="@color/pink_clr"
+                        android:drawableRight="@drawable/ic_calendar"
+                        android:hint="To Date"
+                        android:background="@drawable/invoice_edit_text"
+                        android:layout_below="@+id/code_title"
+                        android:layout_height="35dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:layout_height="wrap_content">
+
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:textSize="12sp"
+                    android:layout_marginRight="10dp"
+                    android:id="@+id/btn_cancel_pickDel"
+                    android:text="Cancel"
+                    android:background="?actionBarItemBackground"
+                    android:textColor="@color/red_btn_bg_color"
+                    android:layout_height="40dp"/>
+
+                <Button
+                    android:id="@+id/search_dat_pickiDel"
+                    android:layout_width="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:layout_marginRight="10dp"
+                    android:textSize="12sp"
+                    android:text="Search"
+                    android:background="?actionBarItemBackground"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_height="40dp"/>
+
+
+
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardlist_item"
+    android:layout_width="match_parent"
+    android:clickable="true"
+    android:layout_height="wrap_content"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:orientation="vertical"
+    card_view:cardCornerRadius="0dp"
+    card_view:cardElevation="0dp"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/root_layout"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:padding="1dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="Winapp Solution PTE LTD"
+                android:layout_marginLeft="10dp"
+                android:maxWidth="300dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:id="@+id/name"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/black_87"
+                android:layout_height="wrap_content"/>
+
+            <Space
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:layout_height="0dip"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="00024"
+                android:id="@+id/customer_code"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"
+                android:textColor="#1d81b6"
+                android:layout_height="wrap_content"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:id="@+id/more_icon"
+                android:visibility="gone"
+                android:src="@drawable/ic_baseline_more_vert_24"
+                android:background="?actionBarItemBackground"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:background="#f3f3f3"
+            android:visibility="gone"
+            android:layout_marginTop="5dp"
+            android:layout_height="1dip"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:paddingBottom="5dp"
+            android:layout_height="wrap_content">
+
+
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_marginLeft="10dp"
+                android:id="@+id/location_icon"
+                android:src="@drawable/ic_baseline_location_on_24"
+                android:layout_height="15dp"
+                card_view:tint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:maxLines="2"
+                    android:maxWidth="250dp"
+                    android:ellipsize="end"
+                    android:textColor="@color/black_87"
+                    android:text="334,North Street,Singapore"
+                    android:id="@+id/customer_address"
+                    android:textSize="12sp"
+                    android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content">
+
+
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_marginLeft="10dp"
+                android:id="@+id/outstanding_icon"
+                android:src="@drawable/ic_pay"
+                android:layout_height="15dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:maxLines="2"
+                android:maxWidth="250dp"
+                android:ellipsize="end"
+                android:textColor="@color/black_87"
+                android:text="Outstanding Amount :"
+                android:textSize="12sp"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:maxLines="2"
+                android:maxWidth="250dp"
+                android:textStyle="bold"
+                android:textColor="#1d81b6"
+                android:ellipsize="end"
+                android:id="@+id/outstanding_amount"
+                android:textSize="12sp"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/_5sdp"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="10dp"
+                android:paddingTop="@dimen/_5sdp"
+                android:visibility="gone"
+                android:paddingBottom="@dimen/_5sdp"
+                android:paddingRight="@dimen/_10sdp"
+                android:paddingLeft="@dimen/_10sdp"
+                android:id="@+id/three_dot_cust"
+                android:src="@drawable/three_dot"
+                />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_gravity="bottom"
+        android:background="#f2f2f2"
+        android:layout_height="1dip"/>
+
+</androidx.cardview.widget.CardView>

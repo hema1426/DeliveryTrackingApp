@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#1d81b6">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/ic_success" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign Below"
+            android:textSize="14sp"
+            android:id="@+id/customer_name_value"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/signature_layout"
+            android:layout_height="200dp"/>
+
+        <com.winapp.deliverytrackingapp.ui.utils.CaptureSignatureView
+            android:layout_width="match_parent"
+            android:background="#d3d3d3"
+            android:visibility="gone"
+            android:id="@+id/signature"
+            android:layout_marginTop="10dp"
+            android:layout_height="130dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_gravity="right"
+            android:gravity="right"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/buttonNo"
+                android:layout_width="80dp"
+                android:layout_marginRight="20sp"
+                android:textSize="12sp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:background="@drawable/button_background_cancel"
+                android:text="CANCEL"
+                android:textColor="@color/colorPrimary" />
+
+            <Button
+                android:id="@+id/buttonClear"
+                android:layout_width="80dp"
+                android:layout_marginRight="20sp"
+                android:textSize="12sp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:background="@drawable/button_background_cancel"
+                android:text="CLEAR"
+                android:textColor="@color/colorPrimary" />
+
+            <Button
+                android:id="@+id/buttonYes"
+                android:layout_width="80dp"
+                android:textSize="12sp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:background="@drawable/button_background"
+                android:text="ACCEPT"
+                android:textColor="@color/white" />
+
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+</LinearLayout>
+

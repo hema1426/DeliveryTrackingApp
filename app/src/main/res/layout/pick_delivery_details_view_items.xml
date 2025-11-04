@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="#f4f4f4" />
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="3dp">
+
+    <TextView
+        android:id="@+id/sl_no_pickDel"
+        android:layout_width="38dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="Sno"
+        android:textColor="#212121"
+        android:textSize="11sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/description_pickDel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="top"
+        android:layout_weight="1"
+        android:text="DESCRIPTION"
+        android:padding="4dp"
+        android:layout_marginLeft="2dp"
+        android:textColor="@color/dark_orang"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginLeft="2dp"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        >
+
+        <TextView
+            android:layout_width="38dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="SNO"
+            android:visibility="invisible"
+            android:textColor="#212121"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/inv_code_item_pickDel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:layout_weight="2"
+            android:gravity="left"
+            android:text="CODE"
+            android:textColor="#212121"
+            android:textSize="12sp"
+            />
+        <TextView
+            android:id="@+id/uom_pickDel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="uom"
+            android:textColor="#212121"
+            android:textSize="12sp"
+            />
+        <TextView
+            android:id="@+id/qty_pickDel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text=""
+            android:textColor="#212121"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            />
+
+
+        <TextView
+            android:id="@+id/price_pickDel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="PRICE"
+            android:visibility="gone"
+            android:textColor="#212121"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/total_pickDel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="TOTAL"
+            android:visibility="gone"
+            android:textColor="#212121"
+            android:textSize="10sp"
+            android:textStyle="bold"
+
+            />
+
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:background="@color/gray_lit"
+        android:layout_height="1dip"/>
+
+</LinearLayout>

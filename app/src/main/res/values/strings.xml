@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">delivery Tracking</string>
+
+    <string name="splash_win">Powered by Winapp solutions Pte Ltd</string>
+
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="invalid_password" translatable="false">Invalid Password</string>
+    <string name="error_password" translatable="false">Password is Empty</string>
+    <string name="release">Release</string>
+    <string name="invoice_prompt">Choose a Status</string>
+    <string name="search_pdt">Search Product</string>
+
+
+
+
+    <string-array name="sales_arrays">
+        <item>ALL</item>
+        <item>OPEN</item>
+        <item>CLOSED</item>
+    </string-array>
+</resources>

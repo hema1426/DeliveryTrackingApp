@@ -1,0 +1,38 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activity.MainActivity">
+
+    <item
+        android:id="@+id/action_pdf"
+        android:icon="@drawable/ic_baseline_picture_as_pdf_24"
+        android:title="Print"
+        android:visible="false"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/switch_btn_menu"
+        app:actionViewClass="androidx.appcompat.widget.SwitchCompat"
+        app:showAsAction="always"
+        android:title="" />
+    <item
+        android:id="@+id/upload_pick_menu"
+        android:title="Upload"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/save_pick_menu"
+        android:title="Completed Status"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/viewImg_pick_menu"
+        android:title="View Image/Signature"
+        android:visible="false"
+         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_print_picklist"
+        android:icon="@drawable/ic_print"
+        android:title="Print"
+        android:visible="false"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+</menu>
