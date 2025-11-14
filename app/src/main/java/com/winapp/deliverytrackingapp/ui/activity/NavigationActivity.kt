@@ -39,7 +39,7 @@ open class NavigationActivity : AppCompatActivity() {
 
     @JvmField
     var user1: HashMap<String, String>? = null
-    private var lastBackPressTime: Long = 0
+    var lastBackPressTime: Long = 0
     private var loginPreferences: SharedPreferences? = null
     private var loginPrefsEditor: SharedPreferences.Editor? = null
     var networkChangeReceiver: NetworkChangeReceiver? = null
@@ -91,7 +91,7 @@ open class NavigationActivity : AppCompatActivity() {
         val menu = mNavigationView!!.getMenu()
       //  val home = menu.findItem(R.id.navigation_item_home)
         val delPicklist = menu.findItem(R.id.navigation_item_delPick)
-//        val catalog = menu.findItem(R.id.navigation_item_catalog)
+        val trackingInv = menu.findItem(R.id.navigation_item_trackingInv)
 //        val allcatagories = menu.findItem(R.id.navigation_item_catagories)
 //        val customers = menu.findItem(R.id.navigation_item_customer)
 //        val salesorder = menu.findItem(R.id.navigation_item_salesorder)
@@ -102,7 +102,8 @@ open class NavigationActivity : AppCompatActivity() {
 //        val salesreturn = menu.findItem(R.id.navigation_item_sales_return)
 
         // target.setVisible(false);
-        mNavigationView!!.setNavigationItemSelectedListener(NavigationView.OnNavigationItemSelectedListener { menuItem ->
+        mNavigationView!!.setNavigationItemSelectedListener(NavigationView.OnNavigationItemSelectedListener {
+            menuItem ->
             menuItem.setChecked(true)
             val itemId = menuItem.itemId
 //            if (itemId == R.id.navigation_item_home) { // setFragment(new HomeFragment());
@@ -119,6 +120,13 @@ open class NavigationActivity : AppCompatActivity() {
                 startActivity(intent)
                 drawerLayout!!.closeDrawers()
                 // mCurrentSelectedPosition = 1;
+                return@OnNavigationItemSelectedListener true
+            }else if (itemId == R.id.navigation_item_trackingInv) {
+                val intent: Intent
+                intent = Intent(this@NavigationActivity, TrackingInvoiceListActivity::class.java)
+                startActivity(intent)
+                drawerLayout!!.closeDrawers()
+
                 return@OnNavigationItemSelectedListener true
             }
             else if (itemId == R.id.navigation_item_signout) {
@@ -165,29 +173,29 @@ open class NavigationActivity : AppCompatActivity() {
 //        )
     }
 
-    override fun onBackPressed() {
-        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
-        /* if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }*/if (lastBackPressTime < System.currentTimeMillis() - 4000) {
-            val snackbar = Snackbar
-                .make(drawer, "Click BACK again to exit", Snackbar.LENGTH_LONG)
-            snackbar.show()
-            lastBackPressTime = System.currentTimeMillis()
-        } else {
-            showCloseAlert()
-            // super.onBackPressed();
-            /*  Intent a = new Intent(Intent.ACTION_MAIN);
-            a.addCategory(Intent.CATEGORY_HOME);
-            a.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(a);
-            finishAffinity();
-            android.os.Process.killProcess(android.os.Process.myPid());*/
-        }
-    }
+//    override fun onBackPressed() {
+//        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+//        /* if (drawer.isDrawerOpen(GravityCompat.START)) {
+//            drawer.closeDrawer(GravityCompat.START);
+//        } else {
+//            super.onBackPressed();
+//        }*/if (lastBackPressTime < System.currentTimeMillis() - 4000) {
+//            val snackbar = Snackbar
+//                .make(drawer, "Click BACK again to exit", Snackbar.LENGTH_LONG)
+//            snackbar.show()
+//            lastBackPressTime = System.currentTimeMillis()
+//        } else {
+//            showCloseAlert()
+//            // super.onBackPressed();
+//            /*  Intent a = new Intent(Intent.ACTION_MAIN);
+//            a.addCategory(Intent.CATEGORY_HOME);
+//            a.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(a);
+//            finishAffinity();
+//            android.os.Process.killProcess(android.os.Process.myPid());*/
+//        }
+//    }
     //todo network hide
     override fun onStart() {
         super.onStart()

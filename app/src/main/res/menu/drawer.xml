@@ -5,9 +5,17 @@
         >
         <item
             android:id="@+id/navigation_item_delPick"
-            android:checked="true"
             android:icon="@drawable/ic_receipt"
             android:title="Delivery PickList" />
+    </group>
+
+    <group
+        android:id="@+id/drawermenu_group_2"
+        >
+        <item
+            android:id="@+id/navigation_item_trackingInv"
+            android:icon="@drawable/location_64"
+            android:title="Tracking Invoice List" />
 
     </group>
 

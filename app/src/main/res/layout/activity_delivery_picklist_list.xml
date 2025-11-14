@@ -220,7 +220,6 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -248,7 +247,6 @@
                         android:textSize="15dp"
                         android:visibility="visible" />
                 </RelativeLayout>
-
 
             </LinearLayout>
 

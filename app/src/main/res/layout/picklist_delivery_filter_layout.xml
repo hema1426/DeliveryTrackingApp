@@ -121,7 +121,7 @@
                 android:background="@drawable/layout_border_radious5_hash"
                 android:orientation="horizontal">
 
-                <com.example.deliverytrackingapp.ui.multiselectspinner.MultiSelectSpinnerView
+                <com.winapp.deliverytrackingapp.ui.multiselectspinner.MultiSelectSpinnerView
                     android:id="@+id/zoneSpinnerl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

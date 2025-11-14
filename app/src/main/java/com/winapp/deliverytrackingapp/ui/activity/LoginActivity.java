@@ -429,7 +429,7 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
     protected void onResume() {
         super.onResume();
         // register connection status listener
-      //  com.example.deliverytrackingapp.MyApplication.getInstance().setConnectivityListener(this);
+      //  com.winapp.deliverytrackingapp.MyApplication.getInstance().setConnectivityListener(this);
     }
 
 

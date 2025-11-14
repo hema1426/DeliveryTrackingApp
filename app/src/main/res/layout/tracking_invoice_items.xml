@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardlist_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_margin="0dp"
+        android:layout_marginTop="0dp"
+        android:orientation="vertical"
+        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardCornerRadius="10dp"
+        card_view:cardUseCompatPadding="true"
+        card_view:cardElevation="@dimen/cardview_default_elevation"
+        tools:ignore="MissingDefaultResource">
+
+        <View
+            android:layout_width="4dp"
+            android:visibility="gone"
+            android:id="@+id/indicator"
+            android:layout_height="105dp"/>
+
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_marginLeft="5dp"
+        android:paddingBottom="5dp"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:textColor="@color/black"
+                android:text="Customer Name : "
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:textSize="14sp"
+                android:ellipsize="end"
+                android:padding="3dp"
+                android:textStyle="bold"
+                android:id="@+id/custname_track"
+                android:textColor="@color/pink_clr"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:textColor="@color/black"
+                android:text="Invoice No : "
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:id="@+id/invNo_track"
+                android:textColor="#3655D2"
+                android:text="Product"
+                android:layout_height="wrap_content"/>
+
+            <Space
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:layout_height="0dip"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:id="@+id/date_track"
+                android:textColor="@color/black"
+                android:text="Product"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:layout_marginTop="5dp"
+            android:background="@color/lit_grey" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="Driver Name : "
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:id="@+id/driverName_track"
+                android:textColor="@color/dark_orang1"
+                android:text="Product"
+                android:layout_height="wrap_content"/>
+            <Space
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:layout_height="0dip"/>
+            <LinearLayout
+                android:id="@+id/assignLay"
+                android:layout_width="100dp"
+                android:layout_gravity="right|center"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:paddingLeft="5dp"
+                android:background="@drawable/price_corner_second"
+                android:gravity="center"
+                android:layout_height="40dp">
+                <LinearLayout
+                    android:layout_width="100dp"
+                    android:layout_gravity="right|center"
+                    android:background="@drawable/price_corner_layout"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_height="40dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="Assign"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            android:background="@drawable/invoice_edit_text"
+            android:layout_height="40dp">
+            <Spinner
+                android:layout_width="match_parent"
+                android:id="@+id/driver_spinner"
+                android:layout_height="40dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
+
+
+
+</LinearLayout>

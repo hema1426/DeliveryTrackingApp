@@ -32,6 +32,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.android.volley.Response
@@ -58,6 +59,7 @@ import com.winapp.deliverytrackingapp.ui.utils.SessionManager
 import com.winapp.deliverytrackingapp.ui.utils.SharedPreferenceUtil
 import com.winapp.deliverytrackingapp.ui.utils.Utils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -866,12 +868,35 @@ class NewDeliveryPickListActivity : NavigationActivity(),
 //        }
 //        return super.onOptionsItemSelected(item)
 //    }
-    override fun onBackPressed() {
-        //Execute your code here
-        val intent = Intent(applicationContext, NavigationActivity::class.java)
-        startActivity(intent)
-        finish()
+//    override fun onBackPressed() {
+//        //Execute your code here
+//        val intent = Intent(applicationContext, NavigationActivity::class.java)
+//        startActivity(intent)
+//        finish()
+//    }
+override fun onBackPressed() {
+    val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+    /* if (drawer.isDrawerOpen(GravityCompat.START)) {
+        drawer.closeDrawer(GravityCompat.START);
+    } else {
+        super.onBackPressed();
+    }*/if (lastBackPressTime < System.currentTimeMillis() - 4000) {
+        val snackbar = Snackbar
+            .make(drawer, "Click BACK again to exit", Snackbar.LENGTH_LONG)
+        snackbar.show()
+        lastBackPressTime = System.currentTimeMillis()
+    } else {
+        showCloseAlert()
+        // super.onBackPressed();
+        /*  Intent a = new Intent(Intent.ACTION_MAIN);
+        a.addCategory(Intent.CATEGORY_HOME);
+        a.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(a);
+        finishAffinity();
+        android.os.Process.killProcess(android.os.Process.myPid());*/
     }
+}
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
