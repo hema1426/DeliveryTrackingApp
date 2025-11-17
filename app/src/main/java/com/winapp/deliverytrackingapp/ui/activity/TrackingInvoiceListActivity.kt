@@ -1,6 +1,8 @@
 package com.winapp.deliverytrackingapp.ui.activity
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Base64
@@ -9,13 +11,17 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
 import com.android.volley.RetryPolicy
@@ -32,8 +38,14 @@ import com.winapp.deliverytrackingapp.ui.model.TrackingAssignModel
 import com.winapp.deliverytrackingapp.ui.model.TrackingInvoiceModel
 import com.winapp.deliverytrackingapp.ui.utils.CommonMethodKotl
 import com.winapp.deliverytrackingapp.ui.utils.Constants
+import com.winapp.deliverytrackingapp.ui.utils.LocationTrack
 import com.winapp.deliverytrackingapp.ui.utils.SessionManager
+import com.winapp.deliverytrackingapp.ui.utils.Utils
+import org.json.JSONException
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.Objects
 
 class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapter.TrackingAssignClickListener{
@@ -48,6 +60,17 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
     var trackNotxt: TextView? = null
     var trackNoLay: LinearLayout? = null
     private var trackInvAdapter: TrackingInvoiceAdapter? = null
+    var switchPickStr = ""
+    var packStatusStr = ""
+    var currentSaveDateTime: String? = ""
+    var current_latitude = "0.00"
+    var current_longitude = "0.00"
+    var current_addr = ""
+    var locationTrack: LocationTrack? = null
+    var alertSave: AlertDialog? = null
+    var invoiceNo : String? = ""
+    var custCode : String? = ""
+    private var pDialog: SweetAlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +80,9 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
         Objects.requireNonNull(supportActionBar)!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.title = "Tracking Invoice"
 
+        Log.w("activity_cg", javaClass.getSimpleName().toString())
+
+        getCurrentLocation()
         locationCode = user1!![SessionManager.KEY_LOCATION_CODE]
         userName = user1!![SessionManager.KEY_USER_NAME]
 
@@ -235,6 +261,8 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
                         model.customerName = `object`.optString("customerName")
                         model.driverName = userName
                         model.invoiceCode = trackingNumber
+                            invoiceNo = `object`.optString("invoiceNumber")
+                                custCode = `object`.optString("customerCode")
 //                        model.overAllTotal = `object`.optString("overAllTotal")
 //                        response
 //                        model.address =
@@ -320,12 +348,13 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
 
                         if(invoiceHeaderDetails!!.size > 0){
                             Log.w("detailssize","${invoiceHeaderDetails!!.size}");
-                            setTrackingdapter(trackingNumber,invoiceHeaderDetails!!)
+                            setTrackingdapter(trackingNumber,invoiceHeaderDetails!!, invoiceTrackList!!)
+                            setRefreshEnabled(true)
+
                             emptytxt!!.visibility = View.GONE
                             trackNoLay!!.visibility = View.VISIBLE
                             rv_trackList!!.visibility = View.VISIBLE
                             Toast.makeText(this@TrackingInvoiceListActivity, "Product "+"$trackingNumber", Toast.LENGTH_SHORT).show()
-
                         }else{
                             emptytxt!!.visibility = View.VISIBLE
                             rv_trackList!!.visibility = View.GONE
@@ -386,7 +415,8 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
         requestQueue.add(jsonObjectRequest)
     }
 
-    fun setTrackingdapter(trackingNumber: String,trackInvoiceLists: java.util.ArrayList<TrackingInvoiceModel>) {
+    fun setTrackingdapter(trackingNumber: String,trackInvoiceLists: ArrayList<TrackingInvoiceModel> ,
+                          trackInvoiceDetailList: ArrayList<TrackingInvoiceModel.InvoiceList>) {
         trackNotxt!!.setText(trackingNumber)
         rv_trackList!!.setHasFixedSize(true)
         rv_trackList!!.setLayoutManager(
@@ -399,7 +429,7 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
         trackInvAdapter =
             TrackingInvoiceAdapter(
                 this@TrackingInvoiceListActivity,
-                trackInvoiceLists,this
+                trackInvoiceLists,trackInvoiceDetailList,this
             )
         rv_trackList!!.setAdapter(trackInvAdapter)
     }
@@ -461,6 +491,11 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
 override fun onCreateOptionsMenu(menu: Menu): Boolean {
     // Inflate the menu; this adds items to the action bar if it is present.
     menuInflater.inflate(R.menu.barcode_menu, menu)
+    val switchmenu = menu.findItem(R.id.switch_track_menu)
+    switchmenu.setVisible(false)
+
+    val switchPicklist = switchmenu.actionView as SwitchCompat?
+    switchPicklist!!.text = "   Status : "
 
 //    val addInvoice = menu.findItem(R.id.action_add)
 //    addInvoice.setVisible(false)
@@ -472,9 +507,219 @@ override fun onCreateOptionsMenu(menu: Menu): Boolean {
 //        } else {
 //            filter.setVisible(false)
 //        }
+    switchColor1(switchPicklist,false)
+
+    switchPicklist.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
+        if (isChecked) {
+            switchPickStr =  "OC"
+            packStatusStr =  "Picked"
+            switchColor(switchPicklist,isChecked)
+//                  switchPicklist!!.setBackgroundColor(Color.parseColor("#AC655C"));
+            showSaveAlert(switchPicklist,switchPickStr , packStatusStr, "")
+        } else {
+            switchColor1(switchPicklist,isChecked)
+            //   switchPicklist!!.setBackgroundColor(Color.parseColor("#F95B24"));
+            switchPickStr = "O"
+            packStatusStr =  "Pending"
+        }
+    }
     return true
 }
+    private fun setRefreshEnabled(enabled: Boolean) {
+        toolbar!!.menu.findItem(R.id.switch_track_menu).setVisible(enabled)
+    }
+    fun showSaveAlert(switchPicklist: SwitchCompat?,status: String , pickStatus: String , mail: String) {
+        val builder1 = AlertDialog.Builder(this@TrackingInvoiceListActivity)
+        builder1.setTitle("Are you sure want to update status ?")
+        // builder1.setMessage("Products and Customer Details will be erased.");
+        builder1.setCancelable(false)
+        builder1.setPositiveButton(
+            "YES"
+        ) { dialog, id -> dialog.cancel()
+            savePickListDelivery(switchPicklist,status , pickStatus ,mail)
+        }
+        builder1.setNegativeButton(
+            "NO"
+        ) { dialog, id -> dialog.cancel()
+            if(switchPicklist != null) {
+                switchPicklist!!.isChecked = false
+            }
+            switchPickStr = ""}
+        alertSave = builder1.create()
+        alertSave!! .show()
+    }
+    fun savePickListDelivery(switchPicklist: SwitchCompat?,status: String , pickStatus: String, mail: String){
+        val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+        val currentDateandTime = sdf.format(Date())
+        currentSaveDateTime = currentDateandTime
 
+        try {
+            val obj = JSONObject()
+            obj.put("invoiceNumber", invoiceNo)
+            obj.put("currentDateTime", currentSaveDateTime)
+            obj.put("customerCode", custCode)
+            obj.put("Username", userName)
+            obj.put("status", status)
+            obj.put("PackStatus", pickStatus)
+            obj.put("Remark", "")
+            obj.put("latitude", current_latitude)
+            obj.put("longitude", current_longitude)
+            obj.put("CurrentAddress", current_addr)
+            obj.put("SendMail", mail)
+            obj.put("image", "")
+            obj.put("signature", "")
+
+            savePicklistDeliveryApi(obj,switchPicklist,"true")
+        } catch (e: JSONException) {
+            throw RuntimeException(e)
+        }
+    }
+    fun savePicklistDeliveryApi(jsonBody: JSONObject ,switchPicklist: SwitchCompat?,alert: String) { // todo
+        try {
+            pDialog = SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE)
+            pDialog!!.progressHelper.barColor = Color.parseColor("#A5DC86")
+            pDialog!!.setCancelable(false)
+
+            val requestQueue = Volley.newRequestQueue(this)
+            Log.w("track_request:", jsonBody.toString())
+            var URL = ""
+            URL = Constants.BASEURL + "PostingSignImageInvoice"
+            Log.w("url_picklDel_save:", URL)
+            pDialog!!.setTitleText("Saving Status...")
+            pDialog!!.show()
+
+            val salesOrderRequest: JsonObjectRequest = object : JsonObjectRequest(
+                Method.POST, URL, jsonBody,
+                Response.Listener { response: JSONObject ->
+                    Log.w("track_status_sav:", response.toString())
+                    pDialog!!.dismiss()
+                    val statusCode = response.optString("statusCode")
+                    val message = response.optString("statusMessage")
+
+                    var responseData: JSONObject? = null
+                    responseData = response.optJSONObject("responseData")
+                    if (statusCode == "1") {
+                        //  val docNum = responseData.optString("docNum")
+                        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+
+                        val intent = Intent(applicationContext, NewDeliveryPickListActivity::class.java)
+                        startActivity(intent)
+                        finish()
+
+
+                        if(alert.equals("true")) {
+                            alertSave!!.dismiss()
+                        }
+                        if(switchPicklist != null) {
+                            switchPicklist.isChecked = false
+                        }
+
+                    } else {
+                        if(alert.equals("true")) {
+                            alertSave!!.dismiss()
+                        }
+                        if(switchPicklist != null) {
+                            switchPicklist!!.isChecked = false
+                        }
+                        if (responseData != null) {
+                            Toast.makeText(
+                                applicationContext,
+                                responseData.optString("error"),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                applicationContext,
+                                "Error in Saving Data...",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                },
+                Response.ErrorListener { error: VolleyError ->
+                    Log.w("track_error:", error.toString())
+                    pDialog!!.dismiss()
+                }) {
+                /* @Override
+                 public byte[] getBody() {
+                     return jsonBody.toString().getBytes();
+                 }*/
+                override fun getBodyContentType(): String {
+                    return "application/json"
+                }
+
+                override fun getHeaders(): Map<String, String> {
+                    val params = java.util.HashMap<String, String>()
+                    val creds = String.format(
+                        "%s:%s",
+                        Constants.API_SECRET_CODE,
+                        Constants.API_SECRET_PASSWORD
+                    )
+                    val auth = "Basic " + Base64.encodeToString(creds.toByteArray(), Base64.DEFAULT)
+                    params["Authorization"] = auth
+                    return params
+                }
+            }
+            salesOrderRequest.setRetryPolicy(object : RetryPolicy {
+                override fun getCurrentTimeout(): Int {
+                    return 50000
+                }
+
+                override fun getCurrentRetryCount(): Int {
+                    return 50000
+                }
+
+                @Throws(VolleyError::class)
+                override fun retry(error: VolleyError) {
+                }
+            })
+            requestQueue.add(salesOrderRequest)
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun getCurrentLocation() {
+        locationTrack = LocationTrack(this@TrackingInvoiceListActivity)
+        if (locationTrack!!.canGetLocation()) {
+            val longitude: Double = locationTrack!!.getLongitude()
+            val latitude: Double = locationTrack!!.getLatitude()
+            current_latitude = latitude.toString()
+            current_longitude = longitude.toString()
+            val currentAddress = Utils.getCompleteAddress(this@TrackingInvoiceListActivity, latitude, longitude)
+            if (currentAddress != null && !currentAddress.isEmpty()) {
+                //  locationText.setText(currentAddress)
+                current_addr = currentAddress
+            }
+            Log.w("latlongpickDPrev",""+current_latitude)
+
+        } else {
+            // locationTrack!!.showSettingsAlert();
+        }
+    }
+
+    private fun switchColor(switchPicklist: SwitchCompat?,checked: Boolean) {
+        switchPicklist!!.getThumbDrawable().setColorFilter(
+            if (checked) Color.BLACK
+            else Color.parseColor("#F95B24"),
+            PorterDuff.Mode.MULTIPLY)
+        switchPicklist!!.getTrackDrawable().setColorFilter(
+            if (!checked) Color.BLACK
+            else Color.parseColor("#F95B24"),
+            PorterDuff.Mode.MULTIPLY
+        )
+    }
+    private fun switchColor1(switchPicklist: SwitchCompat?,checked: Boolean) {
+        switchPicklist!!.getThumbDrawable().setColorFilter(
+            if (checked) Color.BLACK
+            else Color.WHITE,
+            PorterDuff.Mode.MULTIPLY)
+        switchPicklist!!.getTrackDrawable().setColorFilter(
+            if (!checked) Color.BLACK
+            else Color.WHITE,
+            PorterDuff.Mode.MULTIPLY
+        )
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
     if (item.itemId == android.R.id.home) {
       //  finish();

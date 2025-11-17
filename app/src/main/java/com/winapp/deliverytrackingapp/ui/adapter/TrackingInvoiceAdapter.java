@@ -9,6 +9,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.winapp.deliverytrackingapp.R;
@@ -21,11 +22,15 @@ public class TrackingInvoiceAdapter extends RecyclerView.Adapter<TrackingInvoice
     private ArrayList<TrackingInvoiceModel> invoiceLists;
     private Context context;
     private TrackingAssignClickListener trackingAssignClickListener ;
+    private TrackingInvoiceDetailAdapter trackingInvoiceDetailAdapter ;
+    private  ArrayList<TrackingInvoiceModel.InvoiceList> invoiceDetailsList ;
     View view;
     private String printView;
-    public TrackingInvoiceAdapter(Context context, ArrayList<TrackingInvoiceModel> invoices , TrackingAssignClickListener trackingAssignClickListener) {
+    public TrackingInvoiceAdapter(Context context, ArrayList<TrackingInvoiceModel> invoices ,
+                                  ArrayList<TrackingInvoiceModel.InvoiceList> invoiceDetails  , TrackingAssignClickListener trackingAssignClickListener) {
         this.context=context;
         this.invoiceLists = invoices;
+        this.invoiceDetailsList = invoiceDetails;
         this.trackingAssignClickListener = trackingAssignClickListener;
     }
     @NonNull
@@ -49,6 +54,15 @@ public class TrackingInvoiceAdapter extends RecyclerView.Adapter<TrackingInvoice
                 trackingAssignClickListener.trackingAssignSelected(invoiceList);
             }
         });
+        if (invoiceList.getInvoiceList()!= null && !invoiceList.getInvoiceList().isEmpty()
+                && invoiceList.getInvoiceList().size()>0) {
+            setInvoiceAdapter(viewHolder, position, invoiceList.getInvoiceList());
+            viewHolder.rv_pdtList.setVisibility(View.VISIBLE);
+            viewHolder.emptytxt.setVisibility(View.GONE);
+        }else{
+            viewHolder.emptytxt.setVisibility(View.VISIBLE);
+            viewHolder.rv_pdtList.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -58,9 +72,10 @@ public class TrackingInvoiceAdapter extends RecyclerView.Adapter<TrackingInvoice
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
         private TextView invNo,driverName;
-        private TextView custName,date;
+        private TextView custName,date , emptytxt;
         private Spinner driverSpinner;
         private LinearLayout assignLayl;
+        private RecyclerView rv_pdtList;
 
         public ViewHolder(View view) {
             super(view);
@@ -71,8 +86,20 @@ public class TrackingInvoiceAdapter extends RecyclerView.Adapter<TrackingInvoice
             driverName=view.findViewById(R.id.driverName_track);
             driverSpinner =view.findViewById(R.id.driver_spinner);
             assignLayl =view.findViewById(R.id.assignLay);
+            emptytxt =view.findViewById(R.id.emptytxt_item);
+            rv_pdtList =view.findViewById(R.id.rv_invoiceDetailList);
         }
     }
+    public void setInvoiceAdapter(@NonNull RecyclerView.ViewHolder  viewHolder, int position,
+                                  ArrayList<TrackingInvoiceModel.InvoiceList> invoiceList){
+        ((ViewHolder) viewHolder).rv_pdtList.setHasFixedSize(true);
+        ((ViewHolder) viewHolder).rv_pdtList.setLayoutManager(new LinearLayoutManager(context,
+                LinearLayoutManager.VERTICAL, false));
+        TrackingInvoiceDetailAdapter adapter=new TrackingInvoiceDetailAdapter(context,invoiceList);
+        ((ViewHolder) viewHolder).rv_pdtList.setAdapter(adapter);
+        // notifyDataSetChanged();
+    }
+
    public interface TrackingAssignClickListener {
          void trackingAssignSelected(TrackingInvoiceModel pickModel);
     }

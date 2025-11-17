@@ -70,13 +70,27 @@
         android:screenOrientation="portrait"
             />
         <activity
+            android:name=".ui.activity.MapActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar"
+        android:screenOrientation="portrait"
+            />
+        <activity
+            android:name=".ui.activity.MapsActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"
+            />
+        <activity
             android:name=".ui.activity.PickListDeliveryPrintPreviewActivity"
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait"
             />
 
-
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDzLc8vignCc2Xkb7dgaPVNhZyNUDrQ3cM"/>
         <receiver
             android:name=".ui.utils.NetworkChangeReceiver"
             android:label="NetworkChangeReceiver"

@@ -594,6 +594,7 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
         val viewImg = menu.findItem(R.id.viewImg_pick_menu)
         val uploadItem = menu.findItem(R.id.upload_pick_menu)
         val saveItem = menu.findItem(R.id.save_pick_menu)
+        val mapItem = menu.findItem(R.id.map_pick_menu)
 
         action_print.setVisible(false)
 
@@ -609,7 +610,11 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
             showCompletedAlert()
             true
         }
-
+        mapItem.setOnMenuItemClickListener {
+            val intent = Intent(applicationContext, MapsActivity::class.java)
+            startActivity(intent)
+                    true
+                }
         viewImg.setOnMenuItemClickListener {
             showViewImageAlert(pickModel) // pickModel not enable check
             true

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_height="wrap_content">
+    android:background="@color/lit_grey_new"
+    android:layout_height="match_parent">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardlist_item"
@@ -48,7 +49,7 @@
             android:layout_height="wrap_content">
             <TextView
                 android:layout_width="wrap_content"
-                android:textStyle="bold"
+                android:textStyle="normal"
                 android:textSize="13sp"
                 android:textColor="@color/black"
                 android:text="Customer Name : "
@@ -73,14 +74,14 @@
             android:layout_height="wrap_content">
             <TextView
                 android:layout_width="wrap_content"
-                android:textStyle="bold"
+                android:textStyle="normal"
                 android:textSize="13sp"
                 android:textColor="@color/black"
                 android:text="Invoice No : "
                 android:layout_height="wrap_content"/>
             <TextView
                 android:layout_width="wrap_content"
-                android:textStyle="bold"
+                android:textStyle="normal"
                 android:textSize="14sp"
                 android:id="@+id/invNo_track"
                 android:textColor="#3655D2"
@@ -94,7 +95,7 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:textStyle="bold"
+                android:textStyle="normal"
                 android:textSize="13sp"
                 android:id="@+id/date_track"
                 android:textColor="@color/black"
@@ -114,7 +115,7 @@
             android:layout_height="wrap_content">
             <TextView
                 android:layout_width="wrap_content"
-                android:textStyle="bold"
+                android:textStyle="normal"
                 android:textSize="13sp"
                 android:layout_gravity="center"
                 android:gravity="center"
@@ -167,7 +168,81 @@
             </LinearLayout>
 
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:padding="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/lit_blue"
+            android:layout_height="wrap_content">
 
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="top"
+                android:textStyle="bold"
+                android:textColor="#3655D2"
+                android:text="S.no"
+                android:textSize="11sp"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="top"
+                android:layout_weight="2"
+                android:gravity="left"
+                android:textStyle="bold"
+                android:textColor="#3655D2"
+                android:text="Product Name / Code"
+                android:textSize="12sp"
+                />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="top"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textColor="#3655D2"
+                android:text="Qty"
+                android:textSize="12sp"
+                />
+        </LinearLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/emptytxt_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:gravity="center"
+                    android:textStyle="normal"
+                    android:layout_marginTop="20dp"
+                    android:textColor="@color/colorPrimary"
+                    android:text="No Data"
+                    android:textSize="12sp"
+                    />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_invoiceDetailList"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            tools:listitem="@layout/tracking_invoice_details_items"
+            android:layout_height="wrap_content"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:orientation="horizontal"
