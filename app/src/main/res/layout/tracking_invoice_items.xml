@@ -237,6 +237,7 @@
             android:id="@+id/rv_invoiceDetailList"
             android:layout_width="match_parent"
             android:visibility="gone"
+            android:nestedScrollingEnabled="true"
             tools:listitem="@layout/tracking_invoice_details_items"
             android:layout_height="wrap_content"/>
 

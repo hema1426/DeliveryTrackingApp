@@ -93,6 +93,7 @@ public class TrackingInvoiceAdapter extends RecyclerView.Adapter<TrackingInvoice
     public void setInvoiceAdapter(@NonNull RecyclerView.ViewHolder  viewHolder, int position,
                                   ArrayList<TrackingInvoiceModel.InvoiceList> invoiceList){
         ((ViewHolder) viewHolder).rv_pdtList.setHasFixedSize(true);
+        ((ViewHolder) viewHolder).rv_pdtList.setNestedScrollingEnabled(true);
         ((ViewHolder) viewHolder).rv_pdtList.setLayoutManager(new LinearLayoutManager(context,
                 LinearLayoutManager.VERTICAL, false));
         TrackingInvoiceDetailAdapter adapter=new TrackingInvoiceDetailAdapter(context,invoiceList);

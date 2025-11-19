@@ -260,7 +260,7 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
                         model.customerCode = `object`.optString("customerCode")
                         model.customerName = `object`.optString("customerName")
                         model.driverName = userName
-                        model.invoiceCode = trackingNumber
+                        model.invoiceCode = `object`.optString("invoiceNumber")
                             invoiceNo = `object`.optString("invoiceNumber")
                                 custCode = `object`.optString("customerCode")
 //                        model.overAllTotal = `object`.optString("overAllTotal")
