@@ -12,5 +12,8 @@
         android:icon="@drawable/barcode_white64"
         android:title="barcode"
         app:showAsAction="always" />
-
+    <item
+        android:id="@+id/upload_track_menu"
+        android:title="Upload"
+        app:showAsAction="never" />
 </menu>

@@ -1,24 +1,38 @@
 package com.winapp.deliverytrackingapp.ui.activity
 
+import android.Manifest
+import android.content.DialogInterface
 import android.content.Intent
+import android.database.Cursor
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Base64
 import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.pedant.SweetAlert.SweetAlertDialog
@@ -28,21 +42,38 @@ import com.android.volley.RetryPolicy
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.DexterError
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import com.winapp.deliverytrackingapp.BuildConfig
 import com.winapp.deliverytrackingapp.R
 import com.winapp.deliverytrackingapp.ui.adapter.TrackingInvoiceAdapter
 import com.winapp.deliverytrackingapp.ui.model.TrackingAssignInvoice
 import com.winapp.deliverytrackingapp.ui.model.TrackingAssignModel
 import com.winapp.deliverytrackingapp.ui.model.TrackingInvoiceModel
+import com.winapp.deliverytrackingapp.ui.utils.CaptureSignatureView
 import com.winapp.deliverytrackingapp.ui.utils.CommonMethodKotl
 import com.winapp.deliverytrackingapp.ui.utils.Constants
+import com.winapp.deliverytrackingapp.ui.utils.FileCompressor
+import com.winapp.deliverytrackingapp.ui.utils.ImageUtil
 import com.winapp.deliverytrackingapp.ui.utils.LocationTrack
 import com.winapp.deliverytrackingapp.ui.utils.SessionManager
 import com.winapp.deliverytrackingapp.ui.utils.Utils
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -71,6 +102,22 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
     var invoiceNo : String? = ""
     var custCode : String? = ""
     private var pDialog: SweetAlertDialog? = null
+    var uploadImgDialog_txt: TextView? = null
+    var uploadImgDialogLay: LinearLayout? = null
+    var addSignat_Imgl: ImageView? = null
+    var signatureString = ""
+    var mPhotoFile: File? = null
+    val REQUEST_TAKE_PHOTO = 1
+    val REQUEST_GALLERY_PHOTO = 2
+    var imageString: String? = ""
+    var mCompressor: FileCompressor? = null
+    var signatureCapture: ImageView? = null
+    var alertUploadView: AlertDialog? = null
+    private var spinner_pickStatus: Spinner? = null
+    var alertUpload: AlertDialog? = null
+    var alert: AlertDialog? = null
+    var spinnertxt_dialog: String? = "";
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,12 +132,18 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
         getCurrentLocation()
         locationCode = user1!![SessionManager.KEY_LOCATION_CODE]
         userName = user1!![SessionManager.KEY_USER_NAME]
+        mCompressor = FileCompressor(this)
 
         rv_trackList = findViewById(R.id.rv_trackList)
         barcodeText = findViewById(R.id.barcodetxt)
         emptytxt = findViewById(R.id.empty_txt_track)
         trackNotxt = findViewById(R.id.trackingNo_txt)
         trackNoLay = findViewById(R.id.trackingNo_lay)
+
+        spinnertxt_dialog = ""
+        packStatusStr = ""
+        imageString = ""
+        signatureString = ""
 
       //  scanFromFragment()
     }
@@ -493,20 +546,18 @@ override fun onCreateOptionsMenu(menu: Menu): Boolean {
     menuInflater.inflate(R.menu.barcode_menu, menu)
     val switchmenu = menu.findItem(R.id.switch_track_menu)
     switchmenu.setVisible(false)
+    val uploadItem = menu.findItem(R.id.upload_track_menu)
+    uploadItem.setVisible(false)
 
     val switchPicklist = switchmenu.actionView as SwitchCompat?
     switchPicklist!!.text = "   Status : "
 
-//    val addInvoice = menu.findItem(R.id.action_add)
-//    addInvoice.setVisible(false)
-//    val filter = menu.findItem(R.id.action_filter)
-//    filter.setVisible(true)
-//        if (NewInvoiceListActivity.visibleFragment == "invoices") {
-//            filter.setVisible(true)
-//            //filter.setVisible(false);
-//        } else {
-//            filter.setVisible(false)
-//        }
+    uploadItem.setOnMenuItemClickListener {
+        //  showUploadImageAlert(pickModel)
+        showUploadImageAlert()
+        true
+    }
+
     switchColor1(switchPicklist,false)
 
     switchPicklist.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
@@ -525,8 +576,375 @@ override fun onCreateOptionsMenu(menu: Menu): Boolean {
     }
     return true
 }
+    fun showUploadImageAlert() {
+        val alertDialog = AlertDialog.Builder(this@TrackingInvoiceListActivity)
+        val customLayout: View = layoutInflater.inflate(R.layout.pick_image_upload_dialog, null)
+        alertDialog.setView(customLayout)
+        uploadImgDialogLay = customLayout.findViewById<LinearLayout>(R.id.attachement_layout_inv)
+        uploadImgDialog_txt = customLayout.findViewById<TextView>(R.id.select_Img_pickdel)
+        addSignat_Imgl = customLayout.findViewById<ImageView>(R.id.addSignat_Img)
+        signatureCapture = customLayout.findViewById(R.id.signature_capture)
+        val submit_imgl = customLayout.findViewById<TextView>(R.id.submit_img_inv)
+        val invNo_txt = customLayout.findViewById<TextView>(R.id.invNo_txt_edit)
+        val close_btn_edit_invl = customLayout.findViewById<ImageView>(R.id.close_btn_pickdel)
+        spinner_pickStatus = customLayout.findViewById<Spinner>(R.id.spinner_status_pickD)
+
+        val mSig = CaptureSignatureView(this@TrackingInvoiceListActivity, null)
+        // mContent.addView(mSig, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        invNo_txt.text = invoiceNo
+//        Log.w("pickmodelaa:", pickModel.code!!)
+
+        uploadImgDialog_txt!!.setOnClickListener {
+            if (uploadImgDialog_txt!!.getTag() == "view_image") {
+                showImage()
+            } else {
+                selectImage()
+            }
+        }
+
+        if (mPhotoFile != null && mPhotoFile!!.length() > 0) {
+            uploadImgDialog_txt!!.setText("View Image")
+            uploadImgDialog_txt!!.setTag("view_image")
+        } else {
+            uploadImgDialog_txt!!.setText("Select Image")
+            uploadImgDialog_txt!!.setTag("select_image")
+        }
+
+        val status = arrayOf("Picked", "Not Picked")
+
+        val langAdapter = ArrayAdapter<CharSequence>(this, R.layout.cust_spinner_item, status)
+        langAdapter.setDropDownViewResource(R.layout.item_grouplist_spinner)
+        spinner_pickStatus!!.setAdapter(langAdapter)
+
+//        uploadImgDialogLay!!.setOnClickListener(OnClickListener {
+//            if (uploadImgDialog_txt!!.getTag() == "view_image") {
+//                showImage()
+//            } else {
+//                selectImage()
+//            }
+//        })
+        addSignat_Imgl!!.setOnClickListener {
+            showSignatureAlert(signatureCapture!!)
+        }
+
+        close_btn_edit_invl.setOnClickListener {
+            imageString = ""
+            signatureString = ""
+            mPhotoFile = null
+            alertUpload!!.dismiss()
+        }
+
+        submit_imgl.setOnClickListener {
+
+            if(signatureString.isNotEmpty() || imageString!!.isNotEmpty()){
+                spinnertxt_dialog = "OC"
+                packStatusStr = "Picked" // todo
+
+                val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+                val currentDateandTime = sdf.format(Date())
+                currentSaveDateTime = currentDateandTime
+
+                try {
+                    val obj = JSONObject()
+                    obj.put("invoiceNumber", invoiceNo)
+                    obj.put("currentDateTime", currentSaveDateTime)
+                    obj.put("customerCode", custCode)
+                    obj.put("Username", userName)
+                    obj.put("status", spinnertxt_dialog)
+                    obj.put("PackStatus", packStatusStr)
+                    obj.put("Remark", "")
+                    obj.put("latitude", current_latitude)
+                    obj.put("longitude", current_longitude)
+                    obj.put("CurrentAddress", current_addr)
+                    obj.put("SendMail", "")
+                    obj.put("image", imageString)
+                    obj.put("signature", signatureString)
+
+                    Log.w("imgSign_","$obj")
+
+                    savePicklistDeliveryApi(obj,null,"false")
+                } catch (e: JSONException) {
+                    throw RuntimeException(e)
+                }
+            }else{
+                Toast.makeText(applicationContext,  "Choose any one of the option !", Toast.LENGTH_SHORT).show()
+
+//                if (spinner_pickStatus!!.selectedItem.equals("Picked")) {
+//                    spinnertxt_dialog = "OC"
+//                } else  {
+//                    spinnertxt_dialog = "O"
+//                }
+                // //  spinnertxt_dialog = "OC"
+            }
+//            {"invoiceNumber":"18","currentDateTime":"20250616_171118","customerCode":"0005","Username":"ST01",
+//            "status":"C",
+//                "latitude":"10.96440894","longitude":"78.44143506","image":"","signature":""}
+
+        }
+        alertUpload = alertDialog.create()
+        alertUpload!!.setCanceledOnTouchOutside(false)
+        alertUpload!!.show()
+    }
+    fun showSignatureAlert(signatureCaptu:ImageView) {
+        val alertDialog = AlertDialog.Builder(this)
+        val customLayout = layoutInflater.inflate(R.layout.signature_layout, null)
+        alertDialog.setView(customLayout)
+        val acceptButton = customLayout.findViewById<Button>(R.id.buttonYes)
+        val cancelButton = customLayout.findViewById<Button>(R.id.buttonNo)
+        val clearButton = customLayout.findViewById<Button>(R.id.buttonClear)
+
+        val mContent = customLayout.findViewById<LinearLayout>(R.id.signature_layout)
+        acceptButton.setEnabled(false)
+        acceptButton.setAlpha(0.4f)
+        val mSig = CaptureSignatureView(this@TrackingInvoiceListActivity, null) {
+            acceptButton.setEnabled(true)
+            acceptButton.setAlpha(1f)
+        }
+        mContent.addView(
+            mSig,
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        )
+        acceptButton.setOnClickListener { // byte[] signature = captureSignatureView.getBytes();
+            val signature = mSig.getBitmap()
+            signatureCaptu!!.setImageBitmap(signature)
+            signatureString = ImageUtil.convertBimaptoBase64(signature)
+            //  Utils.setSignature(signatureString)
+            alert!!.dismiss()
+            Log.w("SignatureString:", signatureString)
+        }
+        cancelButton.setOnClickListener { alert!!.dismiss() }
+        clearButton.setOnClickListener { mSig.ClearCanvas() }
+        alert = alertDialog.create()
+        alert!!.setCanceledOnTouchOutside(false)
+        alert!!.show()
+    }
+    fun showImage() {
+        val builder = AlertDialog.Builder(this@TrackingInvoiceListActivity)
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.image_view_layout, null)
+        val imageView = dialogView.findViewById<ImageView>(R.id.invoice_image)
+        Glide.with(this)
+            .load(mPhotoFile)
+            .error(R.drawable.no_image_found)
+            .listener(object : RequestListener<Drawable?> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any,
+                    target: Target<Drawable?>,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any,
+                    target: Target<Drawable?>,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+            }).into(imageView)
+        builder.setCancelable(false)
+        builder.setTitle("Invoice Image")
+        builder.setView(dialogView)
+        builder.setNeutralButton(
+            "NEW IMAGE"
+        ) { dialogInterface, i -> selectImage() }
+        builder.setPositiveButton(
+            "OK"
+        ) { dialog, which ->
+            uploadImgDialog_txt!!.setTag("view_image")
+            uploadImgDialog_txt!!.setText("View Image")
+            dialog.dismiss()
+        }.create().show()
+    }
+
+    fun selectImage() {
+        val items = arrayOf<CharSequence>(
+            "Take Photo",  /* "Choose from Library",*/
+            "Cancel"
+        )
+        val builder = AlertDialog.Builder(this@TrackingInvoiceListActivity)
+        builder.setItems(
+            items
+        ) { dialog: DialogInterface, item: Int ->
+            if (items[item] == "Take Photo") {
+                requestStoragePermission(true)
+            } //else if (items[item].equals("Choose from Library")) {
+            else if (items[item] == "Cancel") {
+                dialog.dismiss()
+            }
+        }
+        builder.show()
+    }
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_TAKE_PHOTO) {
+                try {
+                    mPhotoFile = mCompressor!!.compressToFile(mPhotoFile)
+                    imageString = ImageUtil.getBase64StringImage(mPhotoFile)
+                    //  Log.w("GivenImage1:",imageString);
+                    Utils.w("GivenImageTrack", imageString)
+                    showImage()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                /* Glide.with(MainActivity.this)
+                        .load(mPhotoFile)
+                        .apply(new RequestOptions().centerCrop()
+                                .circleCrop()
+                                .placeholder(R.drawable.profile_pic_place_holder))
+                        .into(imageViewProfilePic);*/
+            } else if (requestCode == REQUEST_GALLERY_PHOTO) {
+                val selectedImage = data!!.data
+                try {
+                    mPhotoFile =
+                        mCompressor!!.compressToFile(File(getRealPathFromUri(selectedImage)))
+                    uploadImgDialog_txt!!.setText(selectedImage.toString())
+                    imageString = ImageUtil.getBase64StringImage(mPhotoFile)
+                    // Log.w("GivenImage2:",imageString);
+                    Utils.w("GivenImage2Pick", imageString)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        // Create an image file name
+        val timeStamp =
+            SimpleDateFormat("yyyyMMddHHmmss").format(Date())
+        val mFileName = "JPEG_" + timeStamp + "_"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(mFileName, ".jpg", storageDir)
+    }
+    private fun requestStoragePermission(isCamera: Boolean) {
+        var permission = arrayOf<String?>(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permission = arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.CAMERA
+            )
+        }
+        Dexter.withContext(this)
+            .withPermissions(*permission)
+            .withListener(object : MultiplePermissionsListener {
+                override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                    // check if all permissions are granted
+                    if (report.areAllPermissionsGranted()) {
+                        if (isCamera) {
+                            dispatchTakePictureIntent()
+                        } else {
+                            dispatchGalleryIntent()
+                        }
+                    }
+                    for (i in report.deniedPermissionResponses.indices) {
+                        Log.d("cg_perm", report.deniedPermissionResponses[i].permissionName)
+                    }
+                    // check for permanent denial of any permission
+                    if (report.isAnyPermissionPermanentlyDenied) {
+                        // show alert dialog navigating to Settings
+                        showSettingsDialog()
+                    }
+                }
+
+                override fun onPermissionRationaleShouldBeShown(
+                    permissions: List<PermissionRequest>,
+                    token: PermissionToken
+                ) {
+                    token.continuePermissionRequest()
+                }
+            })
+            .withErrorListener { error: DexterError? ->
+                Toast.makeText(applicationContext, "Error occurred! ", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            .onSameThread()
+            .check()
+    }
+    private fun dispatchTakePictureIntent() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (takePictureIntent.resolveActivity(packageManager) != null) {
+            // Create the File where the photo should go
+            var photoFile: File? = null
+            try {
+                photoFile = createImageFile()
+            } catch (ex: IOException) {
+                ex.printStackTrace()
+                // Error occurred while creating the File
+            }
+            if (photoFile != null) {
+                val photoURI = FileProvider.getUriForFile(
+                    this,
+                    BuildConfig.APPLICATION_ID + ".provider",
+                    photoFile
+                )
+                mPhotoFile = photoFile
+                Log.w("uploadImgpic",""+mPhotoFile);
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
+            }
+        }
+    }
+
+    /**
+     * Select image fro gallery
+     */
+    private fun dispatchGalleryIntent() {
+        val pickPhoto = Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        )
+        pickPhoto.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        startActivityForResult(pickPhoto, REQUEST_GALLERY_PHOTO)
+    }
+    private fun showSettingsDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Need Permissions")
+        builder.setMessage(
+            "This app needs permission to use this feature. You can grant them in app settings."
+        )
+        builder.setPositiveButton("GOTO SETTINGS") { dialog: DialogInterface, which: Int ->
+            dialog.cancel()
+            openSettings()
+        }
+        builder.setNegativeButton(
+            "Cancel"
+        ) { dialog: DialogInterface, which: Int -> dialog.cancel() }
+        builder.show()
+    }
+    private fun openSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", packageName, null)
+        intent.setData(uri)
+        startActivityForResult(intent, 101)
+    }
+    fun getRealPathFromUri(contentUri: Uri?): String? {
+        var cursor: Cursor? = null
+        return try {
+            val proj = arrayOf(MediaStore.Images.Media.DATA)
+            cursor = contentResolver.query(contentUri!!, proj, null, null, null)
+            assert(cursor != null)
+            val column_index = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            cursor.moveToFirst()
+            cursor.getString(column_index)
+        } finally {
+            cursor?.close()
+        }
+    }
     private fun setRefreshEnabled(enabled: Boolean) {
         toolbar!!.menu.findItem(R.id.switch_track_menu).setVisible(enabled)
+        toolbar!!.menu.findItem(R.id.upload_track_menu).setVisible(enabled)
     }
     fun showSaveAlert(switchPicklist: SwitchCompat?,status: String , pickStatus: String , mail: String) {
         val builder1 = AlertDialog.Builder(this@TrackingInvoiceListActivity)
