@@ -18,7 +18,15 @@
             android:title="Tracking Invoice List" />
 
     </group>
+    <group
+        android:id="@+id/drawermenu_group_2a"
+        >
+        <item
+            android:id="@+id/navigation_item_scanInvoice"
+            android:icon="@drawable/barcode_black64"
+            android:title="Scanned Invoice List" />
 
+    </group>
     <group
         android:id="@+id/drawermenu_group_4"
         >

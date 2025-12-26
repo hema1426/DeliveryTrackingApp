@@ -88,6 +88,12 @@
         android:screenOrientation="portrait"
             />
         <activity
+            android:name=".ui.activity.ScannedinvoiceListActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar"
+        android:screenOrientation="portrait"
+            />
+        <activity
             android:name=".ui.activity.MapActivity"
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar"

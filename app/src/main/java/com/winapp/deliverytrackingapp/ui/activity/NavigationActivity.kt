@@ -128,6 +128,13 @@ open class NavigationActivity : AppCompatActivity() {
                 drawerLayout!!.closeDrawers()
 
                 return@OnNavigationItemSelectedListener true
+            }else if (itemId == R.id.navigation_item_scanInvoice) {
+                val intent: Intent
+                intent = Intent(this@NavigationActivity, ScannedinvoiceListActivity::class.java)
+                startActivity(intent)
+                drawerLayout!!.closeDrawers()
+
+                return@OnNavigationItemSelectedListener true
             }
             else if (itemId == R.id.navigation_item_signout) {
                 showSignoutAlert()
