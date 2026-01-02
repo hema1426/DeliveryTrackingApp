@@ -165,6 +165,7 @@ class NewDeliveryPickListActivity : NavigationActivity(),
     var picklistNew: ArrayList<PickIistDeliveryListingModel> = ArrayList()
     var spinnertxt: String? = "";
     var customerStr: String? = "";
+    var remarkStr: String? = "";
     val CUST_RESULT_CODE = 20
     var soNum: String? = ""
     var selectCustomerName: String? = ""
@@ -989,6 +990,10 @@ override fun onBackPressed() {
         val invNo_txt = customLayout.findViewById<TextView>(R.id.invNo_txt_edit)
         val close_btn_edit_invl = customLayout.findViewById<ImageView>(R.id.close_btn_pickdel)
         spinner_pickStatus = customLayout.findViewById<Spinner>(R.id.spinner_status_pickD)
+        val remarkLay = customLayout.findViewById<LinearLayout>(R.id.remarkLayl)
+        val remark_picklistl = customLayout.findViewById<TextView>(R.id.remark_picklist)
+
+        remarkLay.visibility = View.VISIBLE
 
         val mSig = CaptureSignatureView(this@NewDeliveryPickListActivity, null)
         // mContent.addView(mSig, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
@@ -1036,6 +1041,12 @@ override fun onBackPressed() {
 
         submit_imgl.setOnClickListener {
 
+            if(remark_picklistl.text.toString().isNotEmpty()){
+                remarkStr = remark_picklistl.text.toString()
+            }else{
+                remarkStr = ""
+            }
+
             if(signatureString.isNotEmpty()){
                 spinnertxt_dialog = "C"
                 packStatusStr = "Delivered"
@@ -1055,6 +1066,7 @@ override fun onBackPressed() {
                     obj.put("latitude", current_latitude)
                     obj.put("longitude", current_longitude)
                     obj.put("CurrentAddress", current_addr)
+                    obj.put("Remark", remarkStr)
                     obj.put("image", imageString)
                     obj.put("signature", signatureString)
 

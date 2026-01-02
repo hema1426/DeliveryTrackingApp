@@ -10,9 +10,11 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
+import com.winapp.deliverytrackingapp.R
 import com.winapp.deliverytrackingapp.ui.utils.Constants
 import com.winapp.deliverytrackingapp.ui.utils.SharedPreferenceUtil
-import com.winapp.deliverytrackingapp.R
 
 class SplashScreenActivity : AppCompatActivity() {
     var imageView: ImageView? = null
@@ -115,7 +117,6 @@ class SplashScreenActivity : AppCompatActivity() {
 //                startActivity(intent2)
 //                finish()
 //            }
-
     }
 
 //    @Throws(JSONException::class)
@@ -235,5 +236,6 @@ class SplashScreenActivity : AppCompatActivity() {
 
     companion object {
         private const val SPLASH_SCREEN = 2500
+        private const val TAG = "SplashScreenActivity"
     }
 }

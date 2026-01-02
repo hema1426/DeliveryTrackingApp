@@ -25,10 +25,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var tvDistance: TextView
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    // Example postal codes — change to your inputs (or pass via UI/intent)
-    private val postal1 = "621112"    // example: New York ZIP
-    private val postal2 = "621211"    // example: San Francisco ZIP
-
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (!granted) {
@@ -65,9 +61,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             == PackageManager.PERMISSION_GRANTED) {
             map.isMyLocationEnabled = true
         }
+        // Example postal codes — change to your inputs (or pass via UI/intent)
+//        private val postal1 = "621112"    // example: New York ZIP
+//        private val postal2 = "621211"    // example: San Francisco ZIP
 
-        // Kick off geocoding and drawing
-        drawPolylineBetweenPostcodes(postal1, postal2)
+        val fromZipcode = intent.getStringExtra("from_zipcode")
+        val toZipcode = intent.getStringExtra("to_zipcode")
+
+        if (fromZipcode != null && toZipcode != null) {
+            drawPolylineBetweenPostcodes(fromZipcode, toZipcode)
+        }
     }
 
     private fun drawPolylineBetweenPostcodes(codeA: String, codeB: String) {

@@ -194,12 +194,89 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
         }
     }
 
-    private fun saveDriverAssign(jsonObj:TrackingAssignModel) {
+    private fun driverNotification(invoiceNo : String) {
+
+        val requestQueue = Volley.newRequestQueue(this)
+
+        val jsonObject = JSONObject()
+
+        jsonObject.put("InvoiceNo", invoiceNo)
+        val url = Constants.BASEURL + "DriverAssignmentNotification"
+
+        Log.w("notifica_driverURL",  "$url.. $invoiceNo")
+
+        invoiceHeaderDetails = ArrayList()
+        invoiceTrackList = ArrayList()
+        CommonMethodKotl.showProgressDialog(this)
+
+        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
+            Method.POST,
+            url,
+            null,
+            Response.Listener { response: JSONObject ->
+                try {
+                    Log.w("assignRes:: ", response.toString())
+                    val statusCode = response.optString("statusCode")
+                    val statusMsg = response.optString("statusMessage")
+                    val responseData = response.getJSONObject("responseData")
+                    if (statusCode == "1") {
+                        //    val obj = responseData.optJSONObject()
+                           // val statusMsg1 = obj.optString("fromDate")
+
+                            Toast.makeText(applicationContext, statusMsg, Toast.LENGTH_SHORT).show()
+                            rv_trackList!!.removeAllViews()
+                            invoiceHeaderDetails = ArrayList()
+                            invoiceTrackList = ArrayList()
+                            if (trackInvAdapter != null) {
+                                trackInvAdapter!!.notifyDataSetChanged()
+                            }
+                    }
+                    CommonMethodKotl.cancelProgressDialog()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.w("Error3:", Objects.requireNonNull(e.message!!))
+                }
+            },
+            Response.ErrorListener { error: VolleyError ->
+                // Do something when error occurred
+                //  pDialog.dismiss();
+                CommonMethodKotl.cancelProgressDialog()
+                Log.w("Error_throwing:", error.toString())
+            }) {
+            override fun getHeaders(): Map<String, String> {
+                val params = HashMap<String, String>()
+                val creds =
+                    String.format("%s:%s", Constants.API_SECRET_CODE, Constants.API_SECRET_PASSWORD)
+                val auth = "Basic " + Base64.encodeToString(creds.toByteArray(), Base64.DEFAULT)
+                params["Authorization"] = auth
+                return params
+            }
+        }
+        jsonObjectRequest.setRetryPolicy(
+            DefaultRetryPolicy(
+                0,
+                -1,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            )
+        )
+        // Add JsonArrayRequest to the RequestQueue
+        requestQueue.add(jsonObjectRequest)
+    }
+    private fun saveDriverAssign(jsonObj:TrackingAssignModel, invoiceNo: String) {
 
         val requestQueue = Volley.newRequestQueue(this)
         val url = Constants.BASEURL + "DriverAssignment"
 
-        Log.w("Given_urlsave:", "$url ..$jsonObj")
+        Log.w("Given_urlsave", "$url ..${Gson().toJson(jsonObj)}")
+        //        {
+//            "driver": "SALES1",
+//            "invoices": [
+//            {
+//                "invoiceNo": 53
+//            }
+//            ],"user": "SALES1"
+//        }
+        Log.w("sampldriverjson"," ")
         invoiceHeaderDetails = ArrayList()
         invoiceTrackList = ArrayList()
         CommonMethodKotl.showProgressDialog(this)
@@ -230,12 +307,15 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
                             emptytxt!!.visibility = View.VISIBLE
                             rv_trackList!!.visibility = View.GONE
                             trackNoLay!!.visibility = View.GONE
+                            getInvoiceDetails("")
+                            driverNotification(invoiceNo)
                         } else {
                             emptytxt!!.visibility = View.GONE
                             trackNoLay!!.visibility = View.VISIBLE
                             rv_trackList!!.visibility = View.VISIBLE
                             Toast.makeText(applicationContext, "Error in getting data", Toast.LENGTH_SHORT).show()
                         }
+
                     } else {
                         emptytxt!!.visibility = View.GONE
                         trackNoLay!!.visibility = View.VISIBLE
@@ -539,7 +619,7 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
 
     var trackingAssignInvModel = TrackingAssignModel(userName!! ,trackAssignList!!,userName!! )
 
-    saveDriverAssign(trackingAssignInvModel)
+    saveDriverAssign(trackingAssignInvModel, invoiceModel!!.invoiceCode)
 }
 override fun onCreateOptionsMenu(menu: Menu): Boolean {
     // Inflate the menu; this adds items to the action bar if it is present.
@@ -588,6 +668,8 @@ override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val invNo_txt = customLayout.findViewById<TextView>(R.id.invNo_txt_edit)
         val close_btn_edit_invl = customLayout.findViewById<ImageView>(R.id.close_btn_pickdel)
         spinner_pickStatus = customLayout.findViewById<Spinner>(R.id.spinner_status_pickD)
+        val remarkLay = customLayout.findViewById<LinearLayout>(R.id.remarkLayl)
+        remarkLay.visibility = View.GONE
 
         val mSig = CaptureSignatureView(this@TrackingInvoiceListActivity, null)
         // mContent.addView(mSig, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);

@@ -26,7 +26,7 @@
     <item
         android:id="@+id/map_pick_menu"
         android:title="map"
-        android:visible="false"
+        android:visible="true"
         app:showAsAction="never" />
     <item
         android:id="@+id/viewImg_pick_menu"

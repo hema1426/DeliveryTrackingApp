@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "33316202694",
+    "project_id": "deliveryappwinapp",
+    "storage_bucket": "deliveryappwinapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:33316202694:android:dc8b691074f374fdc10fc7",
+        "android_client_info": {
+          "package_name": "com.winapp.deliverytrackingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEq_4R32_os1tX1bNKRkTHZX-XB18uNtA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

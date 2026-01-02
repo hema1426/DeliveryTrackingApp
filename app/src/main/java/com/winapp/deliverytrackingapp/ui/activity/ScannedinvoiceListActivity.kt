@@ -246,23 +246,23 @@ class ScannedinvoiceListActivity : NavigationActivity(),
 
         Log.w("startmonth", "" +  CommonMethods.StartMonthDate())
 
-        if (select_FromDateShowStr!!.isNotEmpty()) {
-            pickifromdate_txt!!.setText(select_FromDateShowStr)
-            fromdateShared = select_FromDateStr
-        } else {
+//        if (select_FromDateShowStr!!.isNotEmpty()) {
+//            pickifromdate_txt!!.setText(select_FromDateShowStr)
+//            fromdateShared = select_FromDateStr
+//        } else {
             select_FromDateStr = CommonMethods.getCurrentDateApiNOSpace()
             fromdateShared = CommonMethods.StartMonthDate()
             pickifromdate_txt!!.setText(CommonMethods.StartMonthDate1())
-        }
+        //}
 
-        if (select_ToDateShowStr!!.isNotEmpty()) {
-            pickitodate_txt!!.setText(select_ToDateShowStr)
-            todateShared = select_ToDateStr
-        } else {
+//        if (select_ToDateShowStr!!.isNotEmpty()) {
+//            pickitodate_txt!!.setText(select_ToDateShowStr)
+//            todateShared = select_ToDateStr
+//        } else {
             select_ToDateStr = CommonMethods.getCurrentDateApiNOSpace()
             todateShared = select_ToDateStr
             pickitodate_txt!!.setText(CommonMethods.getCurrentTime1())
-        }
+        //}
 
         searchTextWatcher = object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
@@ -671,9 +671,8 @@ class ScannedinvoiceListActivity : NavigationActivity(),
             }
 
             R.id.search_dat_scaninv -> {
-                if (pickifromdate_txt!!.text.toString()
-                        .isNotEmpty() && pickitodate_txt!!.text.toString()
-                        .isNotEmpty()
+                if (pickifromdate_txt!!.text.toString().isNotEmpty() &&
+                    pickitodate_txt!!.text.toString().isNotEmpty()
                 ) {
                     val sdformat = SimpleDateFormat("dd/MM/yyyy")
                     var d1: Date? = null
@@ -851,27 +850,7 @@ class ScannedinvoiceListActivity : NavigationActivity(),
 //        finish()
 //    }
 override fun onBackPressed() {
-    val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
-    /* if (drawer.isDrawerOpen(GravityCompat.START)) {
-        drawer.closeDrawer(GravityCompat.START);
-    } else {
-        super.onBackPressed();
-    }*/if (lastBackPressTime < System.currentTimeMillis() - 4000) {
-        val snackbar = Snackbar
-            .make(drawer, "Click BACK again to exit", Snackbar.LENGTH_LONG)
-        snackbar.show()
-        lastBackPressTime = System.currentTimeMillis()
-    } else {
-        showCloseAlert()
-        // super.onBackPressed();
-        /*  Intent a = new Intent(Intent.ACTION_MAIN);
-        a.addCategory(Intent.CATEGORY_HOME);
-        a.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(a);
-        finishAffinity();
-        android.os.Process.killProcess(android.os.Process.myPid());*/
-    }
+    finish()
 }
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -965,6 +944,9 @@ override fun onBackPressed() {
         val invNo_txt = customLayout.findViewById<TextView>(R.id.invNo_txt_edit)
         val close_btn_edit_invl = customLayout.findViewById<ImageView>(R.id.close_btn_pickdel)
         spinner_pickStatus = customLayout.findViewById<Spinner>(R.id.spinner_status_pickD)
+        val remarkLay = customLayout.findViewById<LinearLayout>(R.id.remarkLayl)
+        remarkLay.visibility = View.GONE
+
 
         val mSig = CaptureSignatureView(this@ScannedinvoiceListActivity, null)
         // mContent.addView(mSig, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
@@ -1396,8 +1378,8 @@ override fun onBackPressed() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) { //finish();
-            onBackPressed()
-
+            //onBackPressed()
+            finish()
             /*   case R.id.action_remove:
                 showRemoveAlert();
                 break;*/

@@ -38,6 +38,24 @@ public class PicklistDeliveryPrintPreviewModel {
     private String allowDeliveryAddress;
     private String phoneNo;
     private String lineNo;
+    private String fromShipZipcode;
+    private String toShipZipcode;
+
+    public String getFromShipZipcode() {
+        return fromShipZipcode;
+    }
+
+    public void setFromShipZipcode(String fromShipZipcode) {
+        this.fromShipZipcode = fromShipZipcode;
+    }
+
+    public String getToShipZipcode() {
+        return toShipZipcode;
+    }
+
+    public void setToShipZipcode(String toShipZipcode) {
+        this.toShipZipcode = toShipZipcode;
+    }
 
     public String getPhoneNo() {
         return phoneNo;

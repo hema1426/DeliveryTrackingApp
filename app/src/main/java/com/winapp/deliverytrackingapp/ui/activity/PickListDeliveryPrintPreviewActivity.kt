@@ -28,6 +28,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CompoundButton
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -160,6 +161,7 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
     var imageString: String? = ""
     var mCompressor: FileCompressor? = null
     var signatureCapture: ImageView? = null
+    var remark_picklistl: EditText? = null
     private var spinner_pickStatus: Spinner? = null
     var alertUploadView: AlertDialog? = null
 //    var address1Layout: LinearLayout? = null
@@ -358,6 +360,8 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
                                         `object`.optString("shipStreet") + `object`.optString("shipCountry") + `object`.optString(
                                     "shipZipCode")
                         }
+                        model.fromShipZipcode = `object`.optString("zipcode")
+                        model.toShipZipcode = `object`.optString("shipZipCode")
                         val delieryAddr =
                             `object`.optString("shipAddress2") + `object`.optString("shipAddress3") +
                                     `object`.optString("shipStreet")
@@ -615,6 +619,21 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
             startActivity(intent)
                     true
                 }
+        mapItem.setOnMenuItemClickListener {
+            val fromZipcode  = invoiceHeaderDetails?.firstOrNull()?.fromShipZipcode
+            val toZipcode = invoiceHeaderDetails?.firstOrNull()?.toShipZipcode
+
+            if (toZipcode != null) {
+                val intent = Intent(applicationContext, MapsActivity::class.java).apply {
+                    putExtra("from_zipcode", fromZipcode)
+                    putExtra("to_zipcode", toZipcode)
+                }
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Destination zipcode not available", Toast.LENGTH_SHORT).show()
+            }
+            true
+        }
         viewImg.setOnMenuItemClickListener {
             showViewImageAlert(pickModel) // pickModel not enable check
             true
@@ -672,6 +691,7 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
         uploadImgDialog_txt = customLayout.findViewById<TextView>(R.id.select_Img_pickdel)
         addSignat_Imgl = customLayout.findViewById<ImageView>(R.id.addSignat_Img)
         signatureCapture = customLayout.findViewById(R.id.signature_capture)
+        remark_picklistl = customLayout.findViewById(R.id.remark_picklist)
         val submit_imgl = customLayout.findViewById<TextView>(R.id.submit_img_inv)
         val invNo_txt = customLayout.findViewById<TextView>(R.id.invNo_txt_edit)
         val close_btn_edit_invl = customLayout.findViewById<ImageView>(R.id.close_btn_pickdel)
@@ -732,6 +752,13 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
                 val currentDateandTime = sdf.format(Date())
                 currentSaveDateTime = currentDateandTime
 
+                var remarkStr = "";
+                if(remark_picklistl!!.text.isNotEmpty()){
+                    remarkStr = remark_picklistl!!.text.toString()
+                }else{
+                    remarkStr = "";
+                }
+
                 try {
                     val obj = JSONObject()
                     obj.put("invoiceNumber", invoiceNumber)
@@ -740,7 +767,7 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
                     obj.put("Username", username)
                     obj.put("status", spinnertxt_dialog)
                     obj.put("PackStatus", packStatusStr)
-                    obj.put("Remark", "")
+                    obj.put("Remark", remarkStr)
                     obj.put("latitude", current_latitude)
                     obj.put("longitude", current_longitude)
                     obj.put("CurrentAddress", current_addr)

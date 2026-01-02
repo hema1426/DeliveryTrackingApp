@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,6 +27,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.winapp.deliverytrackingapp.ui.utils.Constants;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -62,6 +67,8 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
     private SessionManager session;
     private SweetAlertDialog pDialog;
     private long lastBackPressTime = 0;
+    private String androidId = "";
+    private String FCMToken = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +99,13 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
 //            rememberMe.setChecked(true);
 //        }
 
+        androidId = Settings.Secure.getString(
+                getContentResolver(),
+                Settings.Secure.ANDROID_ID
+        );
+        Log.w("deviceid",""+androidId);
+
+        getFCMToken();
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,6 +154,7 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
         JSONObject jsonObject=new JSONObject();
         jsonObject.put("Username",userId);
         jsonObject.put("Password",password);
+        jsonObject.put("DeviceId",FCMToken);
         // http://172.16.5.60:8345/api/Login
         String url= Constants.BASEURL +"Login";
         // Initialize a new JsonArrayRequest instance
@@ -277,111 +292,24 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
         requestQueue.add(jsonObjectRequest);
     }
 
-//    private void setSession1(String userId, String password) throws JSONException {
-//        // Initialize a new RequestQueue instance
-//        RequestQueue requestQueue = Volley.newRequestQueue(this);
-//        JSONObject jsonObject=new JSONObject();
-//        jsonObject.put("Username",userId);
-//        jsonObject.put("Password",password);
-//        // http://172.16.5.60:8345/api/Login
-//        String url= Constants.BASEURL +"Login";
-//        // Initialize a new JsonArrayRequest instance
-//        Log.w("Given_login_URL:",url + jsonObject);
-//        pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
-//        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-//        pDialog.setTitleText("Authenticating...");
-//        pDialog.setCancelable(false);
-//        pDialog.show();
-//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, response -> {
-//            try{
-//                Log.w("Res_SAP_login:",response.toString());
-//                if (response.length()>0){
-//                    //  {"statusCode":1,"statusMessage":"Success",
-//                    //  "responseData":[{"userName":"User1","roleName":"DepartmentHead","userID":"1","companyCode":"WINAPP_DEMO",
-//                    //  "companyName":"WINAPP_DEMO","address1":"1 XYZ Chennai  IN 600001","address2":"     "}]}
-//
-//                    String statusCode=response.optString("statusCode");
-//                    if (statusCode.equals("1")){
-//                        JSONArray userArray=response.optJSONArray("responseData");
-//                        assert userArray != null;
-//                        JSONObject object=userArray.optJSONObject(0);
-//
-//                        String username=response.optString("userName");
-//                        String rollname=response.optString("roleName");
-////                        String locationCode=response.optString("LocationCode");
-//                        String isuserpermission=response.optString("IsUserPermission");
-//                        String ismainlocation=response.optString("IsMainLocation");
-//                        String companycode=response.optString("companyCode");
-//                        String companyname=response.optString("companyName");
-//                        String address1=response.optString("address1");
-//                        String address2=response.optString("streetNO");
-//                        String address3=object.optString("countryName")+"-"+object.optString("zipcode");
-//                        session.createLoginSession1(username,password,rollname,
-//                                "",isuserpermission,ismainlocation,
-//                                companycode,companyname,address1,address2,address3);
-//
-//                        sharedPreferenceUtil.setStringPreference(
-//                                Constants.KEY_USERNAME,
-//                                username
-//                        );
-//                        sharedPreferenceUtil.setStringPreference(
-//                                Constants.KEY_PASSWORD,
-//                                password
-//                        );
-//                        sharedPreferenceUtil.setBooleanPreference(Constants.KEY_ISLOGIN,true);
-//
-//                        // Adding the Preference values to the Session to remember the values
-////                                if (rememberMe.isChecked()) {
-////                                    loginPrefsEditor.putBoolean("saveLogin", true);
-////                                    loginPrefsEditor.putString("username", username);
-////                                    loginPrefsEditor.putString("password", password);
-////                                    loginPrefsEditor.commit();
-////                                } else {
-////                                    loginPrefsEditor.clear();
-////                                    loginPrefsEditor.commit();
-////                                }
-//                        redirectActivity();
-//                    }else {
-//                        pDialog.dismiss();
-//                        Toast.makeText(getApplicationContext(),"Invalid Username or Password",Toast.LENGTH_LONG).show();
-//                    }
-//                }
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-//        }, error -> {
-//            // Do something when error occurred
-//            pDialog.dismiss();
-//            Log.w("Error_throwing:",error.toString());
-//            Toast.makeText(getApplicationContext(),"Server Error,Please check",Toast.LENGTH_LONG).show();
-//        }){
-//            @Override
-//            public Map<String, String> getHeaders() {
-//                HashMap<String, String> params = new HashMap<>();
-//                String creds = String.format("%s:%s", Constants.API_SECRET_CODE, Constants.API_SECRET_PASSWORD);
-//                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
-//                params.put("Authorization", auth);
-//                return params;
-//            }
-//        };
-//        jsonObjectRequest.setRetryPolicy(new RetryPolicy() {
-//            @Override
-//            public int getCurrentTimeout() {
-//                return 50000;
-//            }
-//            @Override
-//            public int getCurrentRetryCount() {
-//                return 50000;
-//            }
-//            @Override
-//            public void retry(VolleyError error) throws VolleyError {
-//
-//            }
-//        });
-//        // Add JsonArrayRequest to the RequestQueue
-//        requestQueue.add(jsonObjectRequest);
-//    }
+public void getFCMToken() {
+    FirebaseMessaging.getInstance().getToken()
+            .addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                    if (!task.isSuccessful()) {
+                        Log.w("", "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
 
+                    // Get new FCM registration token
+                    String token = task.getResult();
+                    FCMToken = token ;
+                    // Log
+                    Log.w("FCM", " Token: " + token);
+                }
+            });
+}
     public void redirectActivity(){
         Intent intent=new Intent(getApplicationContext(),NavigationActivity.class);
         startActivity(intent);
