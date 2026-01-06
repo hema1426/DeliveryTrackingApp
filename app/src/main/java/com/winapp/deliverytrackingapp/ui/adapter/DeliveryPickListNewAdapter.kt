@@ -182,6 +182,7 @@ class DeliveryPickListNewAdapter(
                         intent.putExtra("pick_statusDel", pickItem.pickListStatus)
                         intent.putExtra("pick_DocNumDel", pickItem.invNumber)
                         intent.putExtra("pick_DatetimeDel", pickItem.dateTime)
+                        intent.putExtra("pick_phoneDel", pickItem.phoneNo)
                       //  intent.putExtra("pick_model_Del" ,pickItem as Serializable)
 
                         context.startActivity(intent)

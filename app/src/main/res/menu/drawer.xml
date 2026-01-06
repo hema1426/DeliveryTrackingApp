@@ -36,6 +36,15 @@
 
     </group>
     <group
+        android:id="@+id/drawermenu_groupa_35"
+        >
+        <item
+            android:id="@+id/navigation_item_notification"
+            android:icon="@drawable/ic_notification_green_32"
+            android:title="Notification" />
+
+    </group>
+    <group
         android:id="@+id/drawermenu_group_35"
         >
         <item
@@ -44,6 +53,5 @@
             android:title="Sign out" />
 
     </group>
-
 
 </menu>

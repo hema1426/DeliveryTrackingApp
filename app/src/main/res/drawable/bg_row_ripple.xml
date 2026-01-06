@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#40000000">
+
+    <!-- Pressed / Focused -->
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="#FFE0B2"/>
+            <stroke
+                android:width="1dp"
+                android:color="#FB8C00"/>
+            <corners android:radius="6dp"/>
+        </shape>
+    </item>
+
+    <!-- Normal state -->
+    <item>
+        <shape>
+            <solid android:color="#FFF3E0"/>
+            <stroke
+                android:width="1dp"
+                android:color="#FF9800"/>
+            <corners android:radius="6dp"/>
+        </shape>
+    </item>
+
+</ripple>

@@ -492,17 +492,17 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
                             emptytxt!!.visibility = View.VISIBLE
                             rv_trackList!!.visibility = View.GONE
                             trackNoLay!!.visibility = View.GONE
+                            setRefreshEnabled(false)
 
                             Toast.makeText(this@TrackingInvoiceListActivity, "Product "+"$trackingNumber  Not Found", Toast.LENGTH_SHORT).show()
-
                         }
                     }else{
                         emptytxt!!.visibility = View.VISIBLE
                         rv_trackList!!.visibility = View.GONE
                         trackNoLay!!.visibility = View.GONE
+                            setRefreshEnabled(false)
 
                         Toast.makeText(this@TrackingInvoiceListActivity, "Product "+"$trackingNumber  Not Found", Toast.LENGTH_SHORT).show()
-
                     }
                       //  printInvoice(copy,isDoPrint)
                     } else {

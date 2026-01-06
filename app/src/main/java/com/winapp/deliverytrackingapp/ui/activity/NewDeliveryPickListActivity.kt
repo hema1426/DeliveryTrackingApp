@@ -198,6 +198,10 @@ class NewDeliveryPickListActivity : NavigationActivity(),
         sharedPreferenceUtil = SharedPreferenceUtil(this)
         //  intentIntegrator = IntentIntegrator.forSupportFragment(this) // use this instead
         session = SessionManager(this)
+        user = session!!.getUserDetails()
+        companyId = user!!.get(SessionManager.KEY_COMPANY_CODE)
+        locationCode = user!!.get(SessionManager.KEY_LOCATION_CODE)
+        username = user!!.get(SessionManager.KEY_USER_NAME)
 
         picklistinvoice_rv = findViewById(R.id.rv_picklist_delivery)
         barCodelay = findViewById(R.id.barcode_lay)
@@ -330,12 +334,6 @@ class NewDeliveryPickListActivity : NavigationActivity(),
 //            intentIntegrator!!.setBarcodeImageEnabled(false)
 //            intentIntegrator!!.initiateScan()
 //        }
-
-
-        user = session!!.getUserDetails()
-        companyId = user!!.get(SessionManager.KEY_COMPANY_CODE)
-        locationCode = user!!.get(SessionManager.KEY_LOCATION_CODE)
-        username = user!!.get(SessionManager.KEY_USER_NAME)
 
 //        user = Helper.getLoggedInUser(sharedPreferenceUtil!!)
 //        if(user!=null && user!!.size>0){

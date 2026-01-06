@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Base gradient background -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#FF9AA2"
+                android:endColor="#FFD1D6"
+                android:angle="270" />
+        </shape>
+    </item>
+
+    <!-- Wave layer 1 -->
+    <item android:top="300dp">
+        <shape android:shape="oval">
+            <solid android:color="#33FFFFFF"/>
+            <size
+                android:width="900dp"
+                android:height="400dp"/>
+        </shape>
+    </item>
+
+    <!-- Wave layer 2 -->
+    <item android:top="420dp">
+        <shape android:shape="oval">
+            <solid android:color="#22FFFFFF"/>
+            <size
+                android:width="800dp"
+                android:height="350dp"/>
+        </shape>
+    </item>
+
+</layer-list>

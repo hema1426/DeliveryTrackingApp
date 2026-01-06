@@ -182,14 +182,14 @@
         <EditText
             android:id="@+id/remark_picklist"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="35dp"
             android:layout_marginLeft="7dp"
             android:layout_marginRight="7dp"
             android:layout_marginBottom="10dp"
             android:textSize="11sp"
             android:text=""
             android:paddingLeft="10dp"
-            android:background="@drawable/invoice_edit_text"
+            android:background="@drawable/layout_border_radious5_hash"
             />
     </LinearLayout>
         <LinearLayout

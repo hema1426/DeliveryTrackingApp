@@ -1,50 +1,56 @@
 package com.winapp.deliverytrackingapp.ui.activity
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.winapp.deliverytrackingapp.R
 import kotlinx.coroutines.*
-import java.util.Locale
+import java.util.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private lateinit var map: GoogleMap
+    private lateinit var googleMap: GoogleMap
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var tvDistance: TextView
+
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    private val requestPermissionLauncher =
+    /* ---------- PERMISSION ---------- */
+
+    private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted) {
-                Toast.makeText(this, "Location permission denied (not required to geocode)", Toast.LENGTH_SHORT).show()
+            if (granted) {
+                fetchCurrentLocation()
+            } else {
+                Toast.makeText(this, "Location permission required", Toast.LENGTH_LONG).show()
             }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
+
         tvDistance = findViewById(R.id.tvDistance)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Ask for fine location if you want 'my location' enabled (optional)
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+        val mapFragment =
+            supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
@@ -53,101 +59,146 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         scope.cancel()
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
+        checkPermission()
+    }
 
-        // Optional: enable my-location if permission granted
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED) {
-            map.isMyLocationEnabled = true
-        }
-        // Example postal codes — change to your inputs (or pass via UI/intent)
-//        private val postal1 = "621112"    // example: New York ZIP
-//        private val postal2 = "621211"    // example: San Francisco ZIP
+    /* ---------- PERMISSION + GPS ---------- */
 
-        val fromZipcode = intent.getStringExtra("from_zipcode")
-        val toZipcode = intent.getStringExtra("to_zipcode")
-
-        if (fromZipcode != null && toZipcode != null) {
-            drawPolylineBetweenPostcodes(fromZipcode, toZipcode)
+    private fun checkPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fetchCurrentLocation()
+        } else {
+            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 
-    private fun drawPolylineBetweenPostcodes(codeA: String, codeB: String) {
+    private fun isGpsEnabled(): Boolean {
+        val locationManager =
+            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
+    /* ---------- LOCATION ---------- */
+
+    private fun fetchCurrentLocation() {
+
+        if (!isGpsEnabled()) {
+            Toast.makeText(this, "Please turn ON location", Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            return
+        }
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) return
+
+        googleMap.isMyLocationEnabled = true
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                resolveZipAndDrawRoute(location)
+            } else {
+                Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /* ---------- ZIPCODE + MAP ---------- */
+
+    private fun resolveZipAndDrawRoute(currentLocation: Location) {
+        val toZipcode = intent.getStringExtra("to_zipcode")
+
+        if (toZipcode.isNullOrEmpty()) {
+            Toast.makeText(this, "Destination zipcode missing", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         scope.launch {
-            val coords = withContext(Dispatchers.IO) {
-                val geocoder = Geocoder(this@MapsActivity, Locale.getDefault())
-                val a = geocodePostcode(geocoder, codeA)
-                val b = geocodePostcode(geocoder, codeB)
-                Pair(a, b)
+            val geocoder = Geocoder(this@MapsActivity, Locale.getDefault())
+
+            val fromLatLng = LatLng(
+                currentLocation.latitude,
+                currentLocation.longitude
+            )
+
+            val toLatLng = withContext(Dispatchers.IO) {
+                getLatLngFromZip(geocoder, toZipcode)
             }
 
-            val locA = coords.first
-            val locB = coords.second
-
-            if (locA == null || locB == null) {
-                Toast.makeText(this@MapsActivity, "Could not resolve one or both postal codes", Toast.LENGTH_LONG).show()
+            if (toLatLng == null) {
+                Toast.makeText(
+                    this@MapsActivity,
+                    "Unable to locate destination",
+                    Toast.LENGTH_LONG
+                ).show()
                 return@launch
             }
 
-            // Clear previous
-            map.clear()
-
-            // Add markers
-            val markerA = map.addMarker(MarkerOptions().position(locA).title("Postal: $codeA"))
-            val markerB = map.addMarker(MarkerOptions().position(locB).title("Postal: $codeB"))
-
-            // Draw polyline
-            val polylineOptions = PolylineOptions()
-                .add(locA, locB)
-                .width(8f)
-                .geodesic(true)
-            map.addPolyline(polylineOptions)
-
-            // Compute distance (meters)
-            val results = FloatArray(1)
-            Location.distanceBetween(
-                locA.latitude, locA.longitude,
-                locB.latitude, locB.longitude,
-                results
-            )
-            val meters = results[0]
-            val km = meters / 1000.0
-
-            // Show distance
-            tvDistance.text = String.format(Locale.getDefault(), "Distance: %.0f m (%.2f km)", meters, km)
-
-            // Zoom so both markers fit
-            val boundsBuilder = LatLngBounds.Builder()
-            boundsBuilder.include(locA)
-            boundsBuilder.include(locB)
-            val padding = 120 // px padding
-            val bounds = boundsBuilder.build()
-            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding))
-
-            // Add info window on polyline midpoint
-            val midLat = (locA.latitude + locB.latitude) / 2.0
-            val midLng = (locA.longitude + locB.longitude) / 2.0
-            map.addMarker(
-                MarkerOptions()
-                    .position(LatLng(midLat, midLng))
-                    .title(String.format(Locale.getDefault(), "%.2f km", km))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-            )?.showInfoWindow()
+            drawRoute(fromLatLng, toLatLng)
         }
     }
 
-    private fun geocodePostcode(geocoder: Geocoder, postal: String): LatLng? {
-        try {
-            // getFromLocationName may return multiple addresses; take first
-            val addresses = geocoder.getFromLocationName(postal, 5)
-            if (addresses != null && addresses.isNotEmpty()) {
-                val address = addresses[0]
-                return LatLng(address.latitude, address.longitude)
-            }
+    private fun drawRoute(start: LatLng, end: LatLng) {
+
+        googleMap.clear()
+
+        googleMap.addMarker(
+            MarkerOptions().position(start).title("Current Location")
+        )
+
+        googleMap.addMarker(
+            MarkerOptions().position(end).title("Destination")
+        )
+
+        googleMap.addPolyline(
+            PolylineOptions()
+                .add(start, end)
+                .width(8f)
+                .color(0xFF1976D2.toInt())
+                .geodesic(true)
+        )
+
+        val results = FloatArray(1)
+        Location.distanceBetween(
+            start.latitude, start.longitude,
+            end.latitude, end.longitude,
+            results
+        )
+
+        val km = results[0] / 1000
+        tvDistance.text = String.format(Locale.getDefault(), "Distance: %.2f km", km)
+
+        val bounds = LatLngBounds.Builder()
+            .include(start)
+            .include(end)
+            .build()
+
+        googleMap.animateCamera(
+            CameraUpdateFactory.newLatLngBounds(bounds, 120)
+        )
+    }
+
+    /* ---------- GEO ---------- */
+
+    private fun getLatLngFromZip(
+        geocoder: Geocoder,
+        zipcode: String
+    ): LatLng? {
+        return try {
+            val addresses = geocoder.getFromLocationName(zipcode, 1)
+            if (!addresses.isNullOrEmpty()) {
+                LatLng(addresses[0].latitude, addresses[0].longitude)
+            } else null
         } catch (e: Exception) {
-            e.printStackTrace()
+            null
         }
-        return null
     }
 }

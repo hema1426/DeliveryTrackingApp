@@ -19,6 +19,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Base64
 import android.util.Log
 import android.view.Gravity
@@ -67,6 +69,7 @@ import com.winapp.deliverytrackingapp.ui.utils.LocationTrack
 import com.winapp.deliverytrackingapp.ui.utils.SessionManager
 import com.winapp.deliverytrackingapp.ui.utils.Utils
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -80,6 +83,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.net.URLEncoder
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -109,6 +113,7 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
     private var shipAddressText: TextView? = null
     //    private var linetxt: TextView? = null
     private var phoneNo_previewl: TextView? = null
+    private var phoneNo_txt: TextView? = null
     private var deliveryAddr_print_txtl: TextView? = null
     private var deliveryAddr_print_layl: LinearLayout? = null
     private var companyNametext: TextView? = null
@@ -144,6 +149,7 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
     var outstanding_amount: String? = "0.0"
     var delDateStr: String? = ""
     var delStatusStr: String? = ""
+    var delPhoneStr: String? = ""
     lateinit var pickModel: PickIistDeliveryListingModel
     var switchPickStr = ""
     var packStatusStr = ""
@@ -227,6 +233,7 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
         userTxt = findViewById(R.id.del_preview_user)
         dateTimeTxt = findViewById(R.id.del_preview_date)
         phoneNo_previewl = findViewById(R.id.phoneNo_previewDe)
+        phoneNo_txt = findViewById(R.id.del_preview_phoneNo)
 
         sharedPreferences = getSharedPreferences("PrinterPref", MODE_PRIVATE)
         printerType = sharedPreferences!!.getString("printer_type", "")
@@ -263,8 +270,18 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
             outstanding_amount = intent.getStringExtra("outstandingAmount")
             delDateStr = intent.getStringExtra("pick_DatetimeDel")
             delStatusStr = intent.getStringExtra("pick_statusDel")
+            delPhoneStr = intent.getStringExtra("pick_phoneDel")
 //            pickModel = intent.getSerializableExtra("pick_model_Del") as PickIistDeliveryListingModel
             //  pickModel = intent.getParcelableExtra<PickIistDeliveryListingModel>("pick_model_Del")!!
+          //  phoneNo_txt!!.setText(delPhoneStr)
+            if (delPhoneStr != null && !delPhoneStr!!.isEmpty()) {
+
+                phoneNo_txt?.text = Html.fromHtml(
+                    "<font color='#3655D2'><a href='tel:$delPhoneStr'>$delPhoneStr</a></font>",
+                    Html.FROM_HTML_MODE_LEGACY
+                )
+             //   phoneNo_txt!!.setMovementMethod(LinkMovementMethod.getInstance());
+            }
 
             Log.w("delDateStr1:", delDateStr!!)
 
@@ -278,6 +295,9 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
             if (!delDateStr!!.isEmpty()) {
                 dateFormatHour(delDateStr)
             }
+        }
+        phoneNo_txt!!.setOnClickListener {
+            showContactBottomSheet(delPhoneStr!!)
         }
 //        printLayout!!.setOnClickListener(View.OnClickListener {
 //            if (behavior!!.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -915,7 +935,8 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
                                 .circleCrop()
                                 .placeholder(R.drawable.profile_pic_place_holder))
                         .into(imageViewProfilePic);*/
-            } else if (requestCode == REQUEST_GALLERY_PHOTO) {
+            }
+            else if (requestCode == REQUEST_GALLERY_PHOTO) {
                 val selectedImage = data!!.data
                 try {
                     mPhotoFile =
@@ -930,7 +951,72 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
             }
         }
     }
+    private fun showContactBottomSheet(phone: String) {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_contact_options, null)
+        bottomSheetDialog.setContentView(view)
 
+        val btnCall = view.findViewById<TextView>(R.id.btnCall)
+        val btnWhatsapp = view.findViewById<TextView>(R.id.btnWhatsapp)
+
+        btnCall.setOnClickListener {
+            bottomSheetDialog.dismiss()
+            callPhone(phone)
+        }
+
+        btnWhatsapp.setOnClickListener {
+            bottomSheetDialog.dismiss()
+            openWhatsapp(phone)
+        }
+
+        bottomSheetDialog.show()
+    }
+    private fun callPhone(phone: String) {
+        if (phone.isBlank()) {
+            Toast.makeText(this, "Phone number not available", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val intent = Intent(Intent.ACTION_DIAL).apply {
+            data = Uri.parse("tel:$phone")
+        }
+        startActivity(intent)
+    }
+    private fun openWhatsapp(phone: String) {
+        if (phone.isBlank()) {
+            Toast.makeText(this, "Phone number not available", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val formattedPhone = phone.replace("+", "").replace(" ", "")
+        val uri = Uri.parse("https://wa.me/91$formattedPhone")
+
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        intent.setPackage("com.whatsapp")
+
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "WhatsApp not installed", Toast.LENGTH_SHORT).show()
+        }
+    }
+    fun dialPhone(phoneNumber: String) {
+        val intent = Intent(Intent.ACTION_DIAL).apply {
+            data = Uri.parse("tel:$phoneNumber")
+        }
+        startActivity(intent)
+    }
+    fun openWhatsApp(phoneNumber: String, message: String = "") {
+        try {
+            val url = "https://wa.me/91$phoneNumber?text=" +
+                    URLEncoder.encode(message, "UTF-8")
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(url)
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "WhatsApp not installed", Toast.LENGTH_SHORT).show()
+        }
+    }
     fun getRealPathFromUri(contentUri: Uri?): String? {
         var cursor: Cursor? = null
         return try {

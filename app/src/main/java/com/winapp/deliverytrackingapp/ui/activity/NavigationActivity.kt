@@ -13,12 +13,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
+import com.winapp.deliverytrackingapp.R
 import com.winapp.deliverytrackingapp.ui.utils.NetworkChangeReceiver
 import com.winapp.deliverytrackingapp.ui.utils.SessionManager
 import com.winapp.deliverytrackingapp.ui.utils.SharedPreferenceUtil
-import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
-import com.winapp.deliverytrackingapp.R
 
 open class NavigationActivity : AppCompatActivity() {
     var drawerLayout: DrawerLayout? = null
@@ -36,7 +35,7 @@ open class NavigationActivity : AppCompatActivity() {
     var isAPIInvoice = false
     var locationCode1: String? = null
     var isNetwork: Boolean? = false
-
+    var username1: String? = null
     @JvmField
     var user1: HashMap<String, String>? = null
     var lastBackPressTime: Long = 0
@@ -62,6 +61,8 @@ open class NavigationActivity : AppCompatActivity() {
 
         sharedPreferenceUtil = SharedPreferenceUtil(this)
         user1 = session1!!.userDetails
+        username1 = user1!!.get(SessionManager.KEY_USER_NAME)
+
         Log.w("userdetaass",""+ user1!!.toString())
 
         actionBarDrawerToggle = ActionBarDrawerToggle(
@@ -131,6 +132,13 @@ open class NavigationActivity : AppCompatActivity() {
             }else if (itemId == R.id.navigation_item_scanInvoice) {
                 val intent: Intent
                 intent = Intent(this@NavigationActivity, ScannedinvoiceListActivity::class.java)
+                startActivity(intent)
+                drawerLayout!!.closeDrawers()
+
+                return@OnNavigationItemSelectedListener true
+            }else if (itemId == R.id.navigation_item_notification) {
+                val intent: Intent
+                intent = Intent(this@NavigationActivity, NotificationListActivity::class.java)
                 startActivity(intent)
                 drawerLayout!!.closeDrawers()
 
