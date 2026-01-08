@@ -203,7 +203,7 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
         jsonObject.put("InvoiceNo", invoiceNo)
         val url = Constants.BASEURL + "DriverAssignmentNotification"
 
-        Log.w("notifica_driverURL",  "$url.. $invoiceNo")
+        Log.w("notifica_driverURL",  "$url.. $jsonObject")
 
         invoiceHeaderDetails = ArrayList()
         invoiceTrackList = ArrayList()
@@ -212,7 +212,7 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
         val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
             Method.POST,
             url,
-            null,
+            jsonObject,
             Response.Listener { response: JSONObject ->
                 try {
                     Log.w("assignRes:: ", response.toString())
@@ -307,8 +307,9 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
                             emptytxt!!.visibility = View.VISIBLE
                             rv_trackList!!.visibility = View.GONE
                             trackNoLay!!.visibility = View.GONE
-                            getInvoiceDetails("")
+
                             driverNotification(invoiceNo)
+                            getInvoiceDetails("")
                         } else {
                             emptytxt!!.visibility = View.GONE
                             trackNoLay!!.visibility = View.VISIBLE

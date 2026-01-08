@@ -27,7 +27,9 @@ public class Constants extends BaseApp {
 
 //    public static String BASEURL = "http://18.138.84.16:235/es/data/api/";
 
-   public static String BASEURL = "http://136.243.60.223:8090/api/";
+  // public static String BASEURL = "http://136.243.60.223:8090/api/"; //KHCycle demo
+   public static String BASEURL = "https://mobile-sg.khcycle.com/api/"; //KHCycle client url
+
 //   public static String BASEURL = "http://103.166.144.45:92/api/";
    // WMS_KH_CYCLE_DELIVERY_DEMO ="http://136.243.60.223:8090/api/";
    public static String WMS_SJLITE_SINGAPORE_Test ="http://103.166.144.45:92/api/";  //singapore - 18.8.25

@@ -49,7 +49,7 @@ class SplashScreenActivity : AppCompatActivity() {
         textView2!!.setAnimation(bottom)
         version_txtl = findViewById<TextView>(R.id.version_txt)
 
-        version_txtl!!.setText("Version 1.2") // todo 5.1.26
+        version_txtl!!.setText("Version 1.0") // todo 7.1.26
       //  version_txtl!!.setText(Constants.VERSION_CODE)
 
         // Store the Remember me to Session..
