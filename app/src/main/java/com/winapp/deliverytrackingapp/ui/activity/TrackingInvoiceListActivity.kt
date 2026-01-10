@@ -3,6 +3,7 @@ package com.winapp.deliverytrackingapp.ui.activity
 import android.Manifest
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -30,8 +31,11 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -145,6 +149,12 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
         imageString = ""
         signatureString = ""
 
+        checkNotificationPermission()
+
+        if (!areNotificationsEnabled()) {
+            Toast.makeText(this, "Please enable notifications in settings", Toast.LENGTH_LONG).show()
+            openNotificationSettings()
+        }
       //  scanFromFragment()
     }
     fun scanFromFragment() {
@@ -585,6 +595,41 @@ class TrackingInvoiceListActivity  : NavigationActivity() ,TrackingInvoiceAdapte
         }
         return super.dispatchKeyEvent(event)
     }
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    private fun areNotificationsEnabled(): Boolean {
+        return NotificationManagerCompat.from(this).areNotificationsEnabled()
+    }
+    private fun openNotificationSettings() {
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            }
+        } else {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.parse("package:$packageName")
+            }
+        }
+        startActivity(intent)
+    }
+
 //    fun searchAndSendActivity(barcode: String?) {
 //        try {
 //            val model = getProductData(barcode)
