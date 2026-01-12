@@ -9,7 +9,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <!-- Simple overlay for distance -->
+    <Button
+        android:id="@+id/btnOpenGoogleMaps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open in Google Maps"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"/>
+
     <TextView
         android:id="@+id/tvDistance"
         android:layout_width="wrap_content"

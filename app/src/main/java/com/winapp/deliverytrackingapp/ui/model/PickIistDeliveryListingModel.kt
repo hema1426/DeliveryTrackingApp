@@ -25,6 +25,9 @@ class PickIistDeliveryListingModel : java.io.Serializable {
     @SerializedName("noOfItem")
     @Expose
     var noOfItem: String? = null
+    @SerializedName("Priority")
+    @Expose
+    var priority: String? = null
     @SerializedName("pickListStatus")
     @Expose
     var invoiceStatus: String? = null

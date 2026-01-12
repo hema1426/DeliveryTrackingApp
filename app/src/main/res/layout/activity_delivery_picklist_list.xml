@@ -130,7 +130,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="Items(0)"
-                    android:textColor="@color/red1"
+                    android:textColor="@color/orange"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:visibility="invisible" />

@@ -17,18 +17,23 @@
             android:focusableInTouchMode="true"
             android:paddingBottom="10dp"
             android:layout_height="match_parent">
-
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:focusableInTouchMode="true"
+            android:layout_height="match_parent">
                 <LinearLayout
                     android:id="@+id/custLay_pickD"
-                    android:layout_width="match_parent"
-                    android:padding="7dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:padding="10dp"
                     android:orientation="vertical"
                     android:layout_height="wrap_content">
 
                     <TextView
                         android:id="@+id/custFilterAuto"
                         android:layout_width="match_parent"
-                        android:padding="8dp"
+                        android:padding="5dp"
                         android:drawableRight="@drawable/ic_baseline_search_24"
                         android:textSize="13sp"
                         android:selectAllOnFocus="true"
@@ -40,8 +45,23 @@
                         android:layout_height="wrap_content"/>
 
                 </LinearLayout>
+            <LinearLayout
+                android:id="@+id/priority_Lay"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:padding="10dp"
+                android:layout_height="wrap_content">
 
+                <Spinner
+                    android:id="@+id/spinner_priority"
+                    android:layout_width="match_parent"
+                    android:background="@drawable/spinner_bg"
+                    android:layout_height="35dp"
+                    android:spinnerMode="dropdown" />
 
+            </LinearLayout>
+
+        </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
@@ -79,7 +99,6 @@
                         android:layout_marginTop="5dp"
                         android:padding="5dp"
                         android:singleLine="true"
-                        android:drawableRight="@drawable/ic_baseline_search_24"
                         android:gravity="top"
                         android:textSize="13sp"
                         android:textColor="#212121"
@@ -100,8 +119,9 @@
                         android:id="@+id/spinner_status_pick"
                         android:layout_marginTop="10dp"
                         android:layout_width="match_parent"
-                        android:background="@drawable/invoice_edit_text"
+                        android:background="@drawable/spinner_bg"
                         android:layout_height="35dp"
+                        android:spinnerMode="dropdown"
                         android:entries="@array/sales_arrays"
                         android:prompt="@string/invoice_prompt" />
                 </LinearLayout>

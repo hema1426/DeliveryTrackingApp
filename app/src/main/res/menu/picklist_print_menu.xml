@@ -14,6 +14,7 @@
         android:id="@+id/switch_btn_menu"
         app:actionViewClass="androidx.appcompat.widget.SwitchCompat"
         app:showAsAction="always"
+        android:visible="false"
         android:title="" />
     <item
         android:id="@+id/upload_pick_menu"
@@ -21,7 +22,7 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/save_pick_menu"
-        android:title="Completed Status"
+        android:title="Update Status"
         app:showAsAction="never" />
     <item
         android:id="@+id/map_pick_menu"

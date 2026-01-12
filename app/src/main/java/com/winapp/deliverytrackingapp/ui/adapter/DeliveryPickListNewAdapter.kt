@@ -28,6 +28,8 @@ import com.winapp.KHDelivery.model.PickIistDeliveryListingModel
 import com.winapp.deliverytrackingapp.R
 import org.json.JSONException
 import org.json.JSONObject
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 
 class DeliveryPickListNewAdapter(
     private val context: Context,
@@ -61,6 +63,7 @@ class DeliveryPickListNewAdapter(
         var pidatetxt: TextView
         var piinvoicenotxt: TextView
         var pinoofitemtxt: TextView
+        var prioritytxt: TextView
 //        var custaddrtxt: TextView
         var phonetxt: TextView
         var pistatustxt: TextView
@@ -86,6 +89,7 @@ class DeliveryPickListNewAdapter(
             pidatetxt.text = pickItem.docDate
             piinvoicenotxt.text = pickItem.code
             pinoofitemtxt.text = pickItem.noOfItem
+            prioritytxt.text = pickItem.priority
             pistatustxt.text = pickItem.pickListStatus
 //            custaddrtxt.text = pickItem.customerAddress
             shippingAddr_pickD!!.text = pickItem.shipAddress
@@ -101,7 +105,28 @@ class DeliveryPickListNewAdapter(
             }else{
                 mobUserLay!!.visibility = View.GONE
             }
+            if (pickItem.priority.equals("High", true)) {
+                val anim = AlphaAnimation(0.3f, 1.0f).apply {
+                    duration = 600              // blink speed
+                    repeatMode = Animation.REVERSE
+                    repeatCount = Animation.INFINITE
+                }
+                prioritytxt.startAnimation(anim)
 
+                prioritytxt.setTextColor(ContextCompat.getColor(context, R.color.red1))
+            } else {
+                prioritytxt.clearAnimation()
+                prioritytxt.setTextColor(ContextCompat.getColor(context, R.color.black))
+            }
+
+
+//            if (pickItem.priority.equals("High", true)) {
+//                prioritytxt.setBackgroundResource(R.drawable.bg_priority_high)
+//                prioritytxt.setTextColor(ContextCompat.getColor(context, R.color.orange))
+//            } else {
+//                prioritytxt.background = null
+//                prioritytxt.setTextColor(ContextCompat.getColor(context, R.color.black))
+//            }
             Log.e("cust_nameaa", ".." + pickItem.customerName+" .."+pickItem.noOfItem)
             //   schedule_date.setText(scheduledatel.getDate());
             if (pickItem.pickListStatus.equals(
@@ -254,9 +279,11 @@ class DeliveryPickListNewAdapter(
             picustnametxt = itemView.findViewById<View>(R.id.cust_name_picki_del_item) as TextView
             piinvoicenotxt = itemView.findViewById<View>(R.id.picki_del_invoiceno_item) as TextView
             pinoofitemtxt = itemView.findViewById<View>(R.id.picki_del_noitem_item) as TextView
+            pinoofitemtxt = itemView.findViewById<View>(R.id.picki_del_priority_item) as TextView
            // custaddrtxt = itemView.findViewById<View>(R.id.cust_addr_pick_deli_item) as TextView
             phonetxt = itemView.findViewById<View>(R.id.phoneno_list_pickD) as TextView
             pistatustxt = itemView.findViewById<View>(R.id.picki_del_status_item) as TextView
+            prioritytxt = itemView.findViewById<View>(R.id.picki_del_priority_item) as TextView
             usernametxt = itemView.findViewById<View>(R.id.user_picki_item) as TextView
             picklistinvoicelay = itemView.findViewById<View>(R.id.picklist_deli_card) as CardView
             three_dot_pickl = itemView.findViewById<View>(R.id.three_dot_pickl) as ImageView

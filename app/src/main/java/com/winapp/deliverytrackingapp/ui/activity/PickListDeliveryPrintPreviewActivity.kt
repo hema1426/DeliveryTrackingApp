@@ -27,6 +27,7 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CompoundButton
@@ -111,6 +112,9 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
     private val addressText: TextView? = null
     private var billAddressText: TextView? = null
     private var shipAddressText: TextView? = null
+    private var reason_picklistl: TextView? = null
+    private var reasonLaym: LinearLayout? = null
+    private var spinner_statusl: Spinner? = null
     //    private var linetxt: TextView? = null
     private var phoneNo_previewl: TextView? = null
     private var phoneNo_txt: TextView? = null
@@ -160,6 +164,8 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
     var alert: AlertDialog? = null
 
     var signatureString = ""
+    var reasonStr = ""
+    var spinnerStatusStr = ""
     var spinnertxt_dialog: String? = "";
     var mPhotoFile: File? = null
     val REQUEST_TAKE_PHOTO = 1
@@ -623,22 +629,20 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
         action_print.setVisible(false)
 
         val switchPicklist = menuItem.actionView as SwitchCompat?
-        switchPicklist!!.text = "   Status : "
+       // switchPicklist!!.text = "   Status : "
+        menuItem.setVisible(false)
 
-        if(delStatusStr.equals("C",true)){
-            menuItem.setVisible(false)
-        }else{
-            menuItem.setVisible(true)
-        }
+//        if(delStatusStr.equals("C",true)){
+//            menuItem.setVisible(false)
+//        }else{
+//            menuItem.setVisible(true)
+//        }
         saveItem.setOnMenuItemClickListener {
-            showCompletedAlert()
+//            showCompletedAlert()
+            showFailedStatusAlert()
             true
         }
-        mapItem.setOnMenuItemClickListener {
-            val intent = Intent(applicationContext, MapsActivity::class.java)
-            startActivity(intent)
-                    true
-                }
+
         mapItem.setOnMenuItemClickListener {
             val fromZipcode  = invoiceHeaderDetails?.firstOrNull()?.fromShipZipcode
             val toZipcode = invoiceHeaderDetails?.firstOrNull()?.toShipZipcode
@@ -666,7 +670,7 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
 
         switchColor1(switchPicklist,false)
 
-        switchPicklist.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
+        switchPicklist!!.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
             if (isChecked) {
                 switchPickStr =  "OC"
                 packStatusStr =  "Picked"
@@ -701,6 +705,117 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
             }
         }
         popupMenu.show()
+    }
+    fun showFailedStatusAlert() {
+        val alertDialog = AlertDialog.Builder(this@PickListDeliveryPrintPreviewActivity)
+        val customLayout: View = layoutInflater.inflate(R.layout.pick_status_dialog, null)
+        alertDialog.setView(customLayout)
+
+        reason_picklistl = customLayout.findViewById(R.id.reason_picklist)
+        reasonLaym = customLayout.findViewById(R.id.reasonLayl)
+        spinner_statusl = customLayout.findViewById(R.id.spinner_status_update)
+        val submit_imgl = customLayout.findViewById<TextView>(R.id.failed_status_submit)
+        val close_btn = customLayout.findViewById<ImageView>(R.id.close_btn_failed)
+       // invNo_txt.text = invoiceNumber
+        val statusUpdate = arrayOf("Select Status","Picked", "Failed", "Completed")
+
+        val langAdapter1 =
+            ArrayAdapter<CharSequence>(this, R.layout.cust_spinner_item, statusUpdate)
+        langAdapter1.setDropDownViewResource(R.layout.item_grouplist_spinner)
+        spinner_statusl!!.setAdapter(langAdapter1)
+
+        close_btn.setOnClickListener {
+            reasonStr = ""
+            alertUpload!!.dismiss()
+        }
+        spinner_statusl!!.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selectedItem = parent.getItemAtPosition(position).toString()
+
+                    if (selectedItem.equals("Failed", ignoreCase = true)) {
+                        reasonLaym!!.visibility = View.VISIBLE
+//
+                    }else{
+                        reasonLaym!!.visibility = View.GONE
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {}
+            }
+
+        submit_imgl.setOnClickListener {
+            if (spinner_statusl!!.selectedItem.equals("Select Status")) {
+                Toast.makeText(
+                    this@PickListDeliveryPrintPreviewActivity,
+                    "Select any one !",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            } else if (spinner_statusl!!.selectedItem.equals("Picked")) {
+                switchPickStr = "OC"
+                packStatusStr = "Picked"
+                showSaveAlert(null, switchPickStr, packStatusStr, "")
+
+            } else if (spinner_statusl!!.selectedItem.equals("Failed")) {
+                var remarkStr = "";
+                if (reason_picklistl!!.text.isNotEmpty()) {
+                    remarkStr = reason_picklistl!!.text.toString()
+                } else {
+                    remarkStr = "";
+                }
+                if(remarkStr.isNotEmpty()) {
+//            spinnerStatusStr = "High"
+                    spinnertxt_dialog = "Failed"
+                    packStatusStr = "Failed" // todo
+
+                    val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+                    val currentDateandTime = sdf.format(Date())
+                    currentSaveDateTime = currentDateandTime
+
+                    try {
+                        val obj = JSONObject()
+                        obj.put("invoiceNumber", invoiceNumber)
+                        obj.put("currentDateTime", currentSaveDateTime)
+                        obj.put("customerCode", custCode)
+                        obj.put("Username", username)
+                        obj.put("status", spinnertxt_dialog)
+                        obj.put("PackStatus", packStatusStr)
+                        obj.put("Remark", remarkStr)
+                        obj.put("latitude", current_latitude)
+                        obj.put("longitude", current_longitude)
+                        obj.put("CurrentAddress", current_addr)
+                        obj.put("SendMail", "")
+                        obj.put("image", "")
+                        obj.put("signature", "")
+
+                        Log.w("imgSign_", "$obj")
+
+                        savePicklistDeliveryApi(obj, null, "false")
+                    } catch (e: JSONException) {
+                        throw RuntimeException(e)
+                    }
+                }else{
+                    Toast.makeText(
+                            this@PickListDeliveryPrintPreviewActivity,
+                            "Enter Reason !",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                }
+            } else if (spinner_statusl!!.selectedItem.equals("Completed")) {
+                showCompletedAlert()
+            }
+        }
+
+        alertUpload = alertDialog.create()
+        alertUpload!!.setCanceledOnTouchOutside(false)
+        alertUpload!!.show()
     }
 
     fun showUploadImageAlert() {
@@ -1308,6 +1423,7 @@ class PickListDeliveryPrintPreviewActivity : AppCompatActivity() {
                         if(switchPicklist != null) {
                             switchPicklist.isChecked = false
                         }
+                        reason_picklistl!!.text = ""
 //                        if (StockTakeAddActivity.isPrintEnable) {
 //                            intent.putExtra("docNum", docNum)
 //                        }

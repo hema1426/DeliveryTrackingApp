@@ -7,8 +7,11 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,18 +31,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var googleMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var tvDistance: TextView
+    private lateinit var btnOpenGoogleMaps: Button
+
+    private var fromLatLng: LatLng? = null
+    private var toLatLng: LatLng? = null
+    private var distanceKm: Double = 0.0
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    /* ---------- PERMISSION ---------- */
-
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                fetchCurrentLocation()
-            } else {
-                Toast.makeText(this, "Location permission required", Toast.LENGTH_LONG).show()
-            }
+            if (granted) fetchCurrentLocation()
+            else Toast.makeText(this, "Location permission required", Toast.LENGTH_LONG).show()
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,11 +50,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_map)
 
         tvDistance = findViewById(R.id.tvDistance)
+        btnOpenGoogleMaps = findViewById(R.id.btnOpenGoogleMaps)
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val mapFragment =
             supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        btnOpenGoogleMaps.setOnClickListener {
+            openGoogleMapsApp()
+        }
     }
 
     override fun onDestroy() {
@@ -64,7 +73,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         checkPermission()
     }
 
-    /* ---------- PERMISSION + GPS ---------- */
+    /* ---------- PERMISSION ---------- */
 
     private fun checkPermission() {
         if (ContextCompat.checkSelfPermission(
@@ -79,8 +88,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun isGpsEnabled(): Boolean {
-        val locationManager =
-            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
@@ -104,17 +112,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
-                resolveZipAndDrawRoute(location)
+                fromLatLng = LatLng(location.latitude, location.longitude)
+                resolveZipAndDrawRoute()
             } else {
                 Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    /* ---------- ZIPCODE + MAP ---------- */
+    /* ---------- ZIP + MAP ---------- */
 
-    private fun resolveZipAndDrawRoute(currentLocation: Location) {
+    private fun resolveZipAndDrawRoute() {
+
         val toZipcode = intent.getStringExtra("to_zipcode")
+        val from = fromLatLng ?: return
+        Log.w("tozipcode","$toZipcode")
 
         if (toZipcode.isNullOrEmpty()) {
             Toast.makeText(this, "Destination zipcode missing", Toast.LENGTH_SHORT).show()
@@ -124,25 +136,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         scope.launch {
             val geocoder = Geocoder(this@MapsActivity, Locale.getDefault())
 
-            val fromLatLng = LatLng(
-                currentLocation.latitude,
-                currentLocation.longitude
-            )
-
-            val toLatLng = withContext(Dispatchers.IO) {
+            toLatLng = withContext(Dispatchers.IO) {
                 getLatLngFromZip(geocoder, toZipcode)
             }
 
             if (toLatLng == null) {
-                Toast.makeText(
-                    this@MapsActivity,
-                    "Unable to locate destination",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@MapsActivity, "Unable to locate destination", Toast.LENGTH_LONG).show()
                 return@launch
             }
 
-            drawRoute(fromLatLng, toLatLng)
+            drawRoute(from, toLatLng!!)
         }
     }
 
@@ -150,13 +153,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         googleMap.clear()
 
-        googleMap.addMarker(
-            MarkerOptions().position(start).title("Current Location")
-        )
-
-        googleMap.addMarker(
-            MarkerOptions().position(end).title("Destination")
-        )
+        googleMap.addMarker(MarkerOptions().position(start).title("Current Location"))
+        googleMap.addMarker(MarkerOptions().position(end).title("Destination"))
 
         googleMap.addPolyline(
             PolylineOptions()
@@ -173,25 +171,44 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             results
         )
 
-        val km = results[0] / 1000
-        tvDistance.text = String.format(Locale.getDefault(), "Distance: %.2f km", km)
+        distanceKm = results[0] / 1000.0
+        tvDistance.text = String.format(Locale.getDefault(), "Distance: %.2f km", distanceKm)
 
         val bounds = LatLngBounds.Builder()
             .include(start)
             .include(end)
             .build()
 
-        googleMap.animateCamera(
-            CameraUpdateFactory.newLatLngBounds(bounds, 120)
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 120))
+    }
+
+    /* ---------- GOOGLE MAPS ---------- */
+
+    private fun openGoogleMapsApp() {
+
+        val from = fromLatLng ?: return
+        val to = toLatLng ?: return
+
+        val uri = Uri.parse(
+            "https://www.google.com/maps/dir/?api=1" +
+                    "&origin=${from.latitude},${from.longitude}" +
+                    "&destination=${to.latitude},${to.longitude}" +
+                    "&travelmode=driving"
         )
+
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        intent.setPackage("com.google.android.apps.maps")
+
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            startActivity(Intent(Intent.ACTION_VIEW, uri))
+        }
     }
 
     /* ---------- GEO ---------- */
 
-    private fun getLatLngFromZip(
-        geocoder: Geocoder,
-        zipcode: String
-    ): LatLng? {
+    private fun getLatLngFromZip(geocoder: Geocoder, zipcode: String): LatLng? {
         return try {
             val addresses = geocoder.getFromLocationName(zipcode, 1)
             if (!addresses.isNullOrEmpty()) {

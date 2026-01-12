@@ -161,9 +161,11 @@ class NewDeliveryPickListActivity : NavigationActivity(),
     private lateinit var callback: OnBackPressedCallback
     private var filterImg: ImageView? = null
     private var addImg: ImageView? = null
+    private var prioritySpinner: Spinner? = null
     private var emptytxt: TextView? = null
     var picklistNew: ArrayList<PickIistDeliveryListingModel> = ArrayList()
     var spinnertxt: String? = "";
+    var spinnerPriorityStr: String? = "";
     var customerStr: String? = "";
     var remarkStr: String? = "";
     val CUST_RESULT_CODE = 20
@@ -212,6 +214,7 @@ class NewDeliveryPickListActivity : NavigationActivity(),
         pickdate_search = findViewById(R.id.search_dat_pickiDel)
         btn_cancelm = findViewById(R.id.btn_cancel_pickDel)
         custLay_pickl  = findViewById(R.id.custLay_pickD)
+        prioritySpinner  = findViewById(R.id.spinner_priority) as Spinner
 //        search_lay =  findViewById(R.id.picklist_search_lay)
         search_ed = findViewById(R.id.searchBar_pick)
         spinner_statusl = findViewById<View>(R.id.spinner_status_pick) as Spinner
@@ -233,12 +236,20 @@ class NewDeliveryPickListActivity : NavigationActivity(),
         langAdapter.setDropDownViewResource(R.layout.item_grouplist_spinner)
         spinner_statusl!!.setAdapter(langAdapter)
 
+        val statusPri = arrayOf("Select Priority","High", "Medium", "Low")
+
+        val langAdapter1 =
+            ArrayAdapter<CharSequence>(this, R.layout.cust_spinner_item, statusPri)
+        langAdapter1.setDropDownViewResource(R.layout.item_grouplist_spinner)
+        prioritySpinner!!.setAdapter(langAdapter1)
+
         pickitodatelay!!.setOnClickListener(this)
         pickifromdatelay!!.setOnClickListener(this)
         pickdate_search!!.setOnClickListener(this)
         btn_cancelm!!.setOnClickListener(this)
         // search_ed!!.setOnClickListener(this)
         spinnertxt = ""
+        spinnerPriorityStr =""
         spinnertxt_dialog = ""
         packStatusStr = ""
         imageString = ""
@@ -375,7 +386,7 @@ class NewDeliveryPickListActivity : NavigationActivity(),
         }
         //        getpicklist_Detail("", fromdateShared!!, todateShared!!, soNum!!, spinnertxt!!)
         getpicklist_Detail(usernamel!!,locationCode!!,"", CommonMethods.StartMonthDate()!!,
-            CommonMethods.getCurrentDateApiNOSpace()!!, soNum!!, spinnertxt!!)
+            CommonMethods.getCurrentDateApiNOSpace()!!, soNum!!, spinnertxt!!,spinnerPriorityStr!!)
     }
 
     private fun setAdapter(arrayList: ArrayList<PickIistDeliveryListingModel>) {
@@ -449,7 +460,8 @@ class NewDeliveryPickListActivity : NavigationActivity(),
         fromdate: String,
         todate: String,
         docNum: String,
-        status: String
+        status: String,
+        statusPriority: String,
     ) {
         // Initialize a new RequestQueue instance
         val requestQueue = Volley.newRequestQueue(this)
@@ -468,6 +480,7 @@ class NewDeliveryPickListActivity : NavigationActivity(),
         jsonObject.put("ToDate", todate)
         jsonObject.put("DocNo", docNum)
         jsonObject.put("DocStatus", status)
+        jsonObject.put("Priority", statusPriority)
 
         val url = Constants.BASEURL + "InvoiceList"
         Log.w("url_picklis_deli:", "$url-$jsonObject")
@@ -519,6 +532,7 @@ class NewDeliveryPickListActivity : NavigationActivity(),
                                 model.docDate = obj.optString("invoiceDate")
                                 model.invNumber = obj.optString("invoiceNumber")
                                 model.noOfItem = obj.optString("noOfItemCount")
+                                model.priority = obj.optString("priority")
                                 model.invoiceStatus = obj.optString("invoiceStatus")
                                 model.dateTime = obj.optString("dateTime")
                                 model.pickListStatus = obj.optString("pickingStatus")
@@ -526,7 +540,7 @@ class NewDeliveryPickListActivity : NavigationActivity(),
                                 model.shipAddress = shipAddress
                                 model.phoneNo = obj.optString("phone1")
                                 model.contactName = obj.optString("deliveryContactPerson")
-                                model.remark = obj.optString("remark")
+                                model.remark = obj.optString("deliveryRemark")
                                 model.user = obj.optString("user")
                                 model.signatureUrl = obj.optString("signature")
                                 model.imageUrl = obj.optString("image")
@@ -726,6 +740,18 @@ class NewDeliveryPickListActivity : NavigationActivity(),
                         Log.w("api2_s3", ".." + spinnertxt)
                     }
 
+                    if (prioritySpinner!!.selectedItem.equals("Select Priority")) {
+                        spinnerPriorityStr = ""
+                    } else if (prioritySpinner!!.selectedItem.equals("High")) {
+                        spinnerPriorityStr = "High"
+                    }
+                    else if (prioritySpinner!!.selectedItem.equals("Medium")) {
+                        spinnerPriorityStr = "Medium"
+                    }
+                    else if (prioritySpinner!!.selectedItem.equals("Low")) {
+                        spinnerPriorityStr = "Low"
+                    }
+
                     if (so_number_filter_pickl!!.text.toString().isNotEmpty()
                     ) {
                         soNum = so_number_filter_pickl!!.text.toString()
@@ -757,7 +783,7 @@ class NewDeliveryPickListActivity : NavigationActivity(),
 
                         getpicklist_Detail(usernamel!!,locationCode!!,
                             selectCustomerCode!!, fromdateShared!!, todateShared!!, soNum!!,
-                            spinnertxt!!
+                            spinnertxt!!,spinnerPriorityStr!!
                         )
                     }
 
@@ -840,6 +866,8 @@ class NewDeliveryPickListActivity : NavigationActivity(),
         custFilterAutol!!.setText("")
         customerStr = ""
         spinnertxt = ""
+        prioritySpinner!!.setSelection(0)
+        spinner_statusl!!.setSelection(0)
         so_number_filter_pickl!!.setText("")
     }
 
